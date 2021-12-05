@@ -53,7 +53,7 @@ int main ()
 	//=======================================
 	//==========  STD::VECTOR  ==============
 	//=======================================
-
+	
 	std::vector<int> std_vec;
 
 	std_vec.push_back(3);
@@ -80,7 +80,11 @@ int main ()
 	std::cout << std::endl;
 
 	std::cout << "--------" << std::endl;
+	
+	
 
+	std::cout << "--------" << std::endl;
+	
 	//=======================================
 	//===========  FT::VECTOR  ==============
 	//=======================================
@@ -92,7 +96,13 @@ int main ()
 	std::cout << "capacity: " << ft_vec.capacity() << std::endl;
 	std::cout << ft_vec.at(3) << std::endl;
 
+	ft::vector<int>::iterator ft_it = ft_vec.begin();
+	ft::vector<int>::iterator ft_ite = ft_vec.end();
 
+	for ( ; ft_it != ft_ite ; ft_it++)
+	{
+		std::cout << *ft_it << std::endl;
+	}
 
 	return 0;
 }
