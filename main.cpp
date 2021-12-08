@@ -1,7 +1,7 @@
 #include <iostream>
 #include <memory>
 #include <vector>
-#include "./srcs/vector/vector.hpp"
+#include "./srcs/vector.hpp"
 
 //ALLOCATOR USE TEST
 /*
@@ -45,6 +45,14 @@ int main()
 }
 */
 
+template<class T>
+void print_vector_stats(T &vec)
+{
+	std::cout << std::endl << "-- vector stats -- " << std::endl;
+	std::cout << "size: " << vec.size() << std::endl;
+	std::cout << "capacity: " << vec.capacity() << std::endl;
+	std::cout << std::endl;
+}
 
 //Vector TEST
 int main ()
@@ -53,7 +61,7 @@ int main ()
 	//=======================================
 	//==========  STD::VECTOR  ==============
 	//=======================================
-	
+
 	std::vector<int> std_vec;
 
 	std_vec.push_back(3);
@@ -63,47 +71,69 @@ int main ()
 	std_vec.push_back(0);
 	std_vec.push_back(8);
 	
-	std::cout << "std_vec" << std::endl;
-	std::cout << "size: " << std_vec.size() << std::endl;
-	std::cout << "capacity: " << std_vec.capacity() << std::endl;
+	print_vector_stats(std_vec);
 	
-	std::cout << "std_vec2" << std::endl;
-	std::vector<int> std_vec2(3, 69);
-	std::cout << "size: " << std_vec2.size() << std::endl;
-	std::cout << "capacity: " << std_vec2.capacity() << std::endl;
+	std_vec.resize(4);
 
-	std::vector<int>::iterator it = std_vec2.begin();
-	std::vector<int>::iterator ite = std_vec2.end();
+	print_vector_stats(std_vec);
 
-	for(; it != ite; it++)
-		std::cout << *it << ", ";
-	std::cout << std::endl;
 
-	std::cout << "--------" << std::endl;
-	
+	ft::vector<int> ft_vec(6, 69);
+
+	print_vector_stats(ft_vec);
+
+	ft_vec.resize(4);
+
+	print_vector_stats(ft_vec);
 	
 
-	std::cout << "--------" << std::endl;
-	
 	//=======================================
 	//===========  FT::VECTOR  ==============
 	//=======================================
-
+	/*
 	ft::vector<int> ft_vec(3, 69);
 
 	std::cout << "ft_vec" << std::endl;
-	std::cout << "size: " << ft_vec.size() << std::endl;
-	std::cout << "capacity: " << ft_vec.capacity() << std::endl;
+	print_ftvector_stats(ft_vec);
 	std::cout << ft_vec.at(3) << std::endl;
 
-	ft::vector<int>::iterator ft_it = ft_vec.begin();
-	ft::vector<int>::iterator ft_ite = ft_vec.end();
+	int &vec_elem10 = ft_vec.at(2);
+	vec_elem10 = 1;
 
-	for ( ; ft_it != ft_ite ; ft_it++)
+	std::cout << "-- iterator start --" << std::endl;
+	
+	ft::vector<int>::iterator ftit = ft_vec.begin();
+	ft::vector<int>::iterator ftite = ft_vec.end();
+
+	for (; ftit != ftite; ftit++)
 	{
-		std::cout << *ft_it << std::endl;
+		std::cout << *ftit << " ";
 	}
 
+	std::cout << std::endl;
+
+	std::cout << "-- iterator end --" << std::endl;
+
+	std::cout << "-- vector reserve start -- " << std::endl;
+	
+	print_ftvector_stats(ft_vec);
+
+	ft_vec.reserve(20);
+
+	print_ftvector_stats(ft_vec);
+
+	ftit = ft_vec.begin();
+	ftite = ft_vec.end();
+
+	for (; ftit != ftite; ftit++)
+	{
+		std::cout << *ftit << " ";
+	}
+
+	std::cout << std::endl;
+
+	std::cout << "-- vector reserve end -- " << std::endl;
+	*/
 	return 0;
 }
 
