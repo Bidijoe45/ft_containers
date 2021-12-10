@@ -1,141 +1,13 @@
+#pragma once
 #include <memory>
+#include "VectorIterator.hpp"
 
 namespace ft
 {
 
-	template <class Category, class T, class Distance = ptrdiff_t, class Pointer = T *, class Reference = T &>
-	struct VectorIterator
+	template <class T, class Allocator = std::allocator<T> >
+	class vector
 	{
-		typedef T value_type;
-		typedef Distance difference_type;
-		typedef Pointer pointer;
-		typedef Reference reference;
-		typedef Category iterator_category;
-
-		VectorIterator(pointer p)
-		{
-			this->_ptr = p;
-		}
-
-		VectorIterator(reference it)
-		{
-			this->_ptr = it._ptr;
-		}
-
-		reference operator=(reference it)
-		{
-			if (this == &it)
-				return *this;
-
-			this->_ptr = it._ptr;
-			return *this;
-		}
-
-		VectorIterator operator++()
-		{
-			++this->_ptr;
-			return *this;
-		}
-
-		VectorIterator operator++(int)
-		{
-			VectorIterator tmp = *this;
-			this->_ptr++;
-			return tmp;
-		}
-
-		VectorIterator operator--()
-		{
-			--this->_ptr;
-			return *this;
-		}
-
-		VectorIterator operator--(int)
-		{
-			VectorIterator tmp = *this;
-			--this->_ptr;
-			return tmp;
-		}
-
-		
-		};
-
-		template <class Category, class T, class Distance = ptrdiff_t, class Pointer = T *, class Reference = T &>
-		struct ConstantVectorIterator
-		{
-			typedef T value_type;
-			typedef Distance difference_type;
-			typedef Pointer pointer;
-			typedef Reference reference;
-			typedef Category iterator_category;
-
-			ConstantVectorIterator(pointer p)
-			{
-				this->_ptr = p;
-			}
-
-			ConstantVectorIterator(reference it)
-			{
-				this->_ptr = it._ptr;
-			}
-
-			reference operator=(reference it)
-			{
-				if (this == &it)
-					return *this;
-
-				this->_ptr = it._ptr;
-				return *this;
-			}
-
-			ConstantVectorIterator operator++()
-			{
-				++this->_ptr;
-				return *this;
-			}
-
-			ConstantVectorIterator operator++(int)
-			{
-				ConstantVectorIterator tmp = *this;
-				this->_ptr++;
-				return tmp;
-			}
-
-			ConstantVectorIterator operator--()
-			{
-				--this->_ptr;
-				return *this;
-			}
-
-			ConstantVectorIterator operator--(int)
-			{
-				ConstantVectorIterator tmp = *this;
-				--this->_ptr;
-				return tmp;
-			}
-
-			const reference operator*()
-			{
-				return *(this->_ptr);
-			}
-
-			friend bool operator==(const ConstantVectorIterator &it1, const ConstantVectorIterator &it2)
-			{
-				return (it1._ptr == it2._ptr);
-			}
-
-			friend bool operator!=(const ConstantVectorIterator &it1, const ConstantVectorIterator &it2)
-			{
-				return (it1._ptr != it2._ptr);
-			}
-
-			private:
-				pointer _ptr;
-		};
-
-		template <class T, class Allocator = std::allocator<T> >
-		class vector
-		{
 
 		public:
 			typedef T value_type;
@@ -147,7 +19,8 @@ namespace ft
 			typedef typename Allocator::pointer pointer;
 			typedef typename Allocator::const_pointer const_pointer;
 			typedef VectorIterator<std::random_access_iterator_tag, T> iterator;
-			typedef ConstantVectorIterator<std::random_access_iterator_tag, T> const_iterator;
+			typedef VectorIterator<std::random_access_iterator_tag, const T> const_iterator;
+
 
 			// TODO:
 			explicit vector(const Allocator &alloc = Allocator())
@@ -171,16 +44,18 @@ namespace ft
 
 			// TODO:
 			/*
-				template < class InputIt >
-				vector(InputIt first, InputIt last, const Allocator& alloc = Allocator())
-				{
+					template < class InputIt >
+					vector(InputIt first, InputIt last, const Allocator& alloc = Allocator())
+					{
 
-				}
-				*/
+					}
+					*/
 
 			// TODO:
 			vector(const vector &other)
 			{
+				
+
 			}
 
 			// TODO:
@@ -367,4 +242,4 @@ namespace ft
 			pointer _data;
 			Allocator _allocator;
 		};
-	}
+}
