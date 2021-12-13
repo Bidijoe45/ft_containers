@@ -21,8 +21,8 @@ namespace ft
 			typedef VectorIterator<std::random_access_iterator_tag, T> iterator;
 			typedef VectorIterator<std::random_access_iterator_tag, const T> const_iterator;
 
+			/* CONSTRUCTORS */
 
-			// TODO:
 			explicit vector(const Allocator &alloc = Allocator())
 			{
 				this->_size = 0;
@@ -43,19 +43,38 @@ namespace ft
 			}
 
 			// TODO:
-			/*
-					template < class InputIt >
-					vector(InputIt first, InputIt last, const Allocator& alloc = Allocator())
-					{
+			template < class InputIt >
+			vector(InputIt first, InputIt last, const Allocator& alloc = Allocator())
+			{
+				size_type size = last - first;
 
-					}
-					*/
+				this->_data = this->_allocator.allocate(size);
+				this->_size = size;
+				this->_capacity = size;
+
+				iterator it = this->begin();
+				iterator ite = this->end();
+
+				while (it != ite)
+					*it++ = *first++;
+			}
+				
 
 			// TODO:
 			vector(const vector &other)
 			{
-				
+				if (this == &other)
+					return ;
 
+				this->_allocator = other.get_allocator();
+				this->_size = other.size();
+				this->_capacity = other.capacity();
+				this->_data = this->_allocator.allocate(other.capacity());
+
+				for (size_type i=0; i < other.size(); i++)
+				{
+					this->_data[i] = other._data[i];
+				}
 			}
 
 			// TODO:
@@ -101,7 +120,6 @@ namespace ft
 				return this->_allocator.max_size();
 			}
 
-			// TODO:
 			void resize(size_type n, value_type val = value_type())
 			{
 				if (n <= this->_size)
@@ -227,14 +245,21 @@ namespace ft
 			// swap
 
 			// TODO:
-			// clear
+			void clear()
+			{
+				for (size_type i=0; i < this->_size; i++)
+					this->_allocator.destroy(&this->_data[i]);
+			}
 
 			// TODO:
 
 			/* ALLOCATOR */
 
-			// TODO
-			// get_allocator
+			allocator_type get_allocator() const
+			{
+				return this->_allocator;
+			}
+
 
 		private:
 			size_type _size;

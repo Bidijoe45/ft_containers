@@ -61,6 +61,11 @@ struct VectorIterator
 		return tmp;
 	}
 
+	difference_type operator-(VectorIterator &other)
+	{
+		return this->_ptr - other._ptr;
+	}
+
 
 	bool operator==(const VectorIterator &it) const
 	{
