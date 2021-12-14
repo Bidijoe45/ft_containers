@@ -178,7 +178,6 @@ namespace ft
 
 			/* ELEMENT ACCESS */
 
-			// TODO:
 			reference operator[](size_type n)
 			{
 				return this->_data[n];

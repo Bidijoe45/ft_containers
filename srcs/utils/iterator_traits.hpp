@@ -10,6 +10,7 @@ namespace ft {
 		typename Iterator::value_type value_type;
 		typename Iterator::pointer pointer;
 		typename Iterator::reference reference;
+		typename Iterator::iterator_category iterator_category;
 	};
 
 	template <class Iterator> struct is_iterator : std::false_type {};
