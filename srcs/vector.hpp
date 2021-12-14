@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include "utils/iterator_traits.hpp"
 #include "VectorIterator.hpp"
 
 namespace ft
@@ -27,11 +28,13 @@ namespace ft
 			{
 				this->_size = 0;
 				this->_capacity = 0;
+				this->_allocator = alloc;
 			}
 
 			// FIXME: no es seguro, controlar mejor si se intenta alocar una cantidad mayor que max_size
 			explicit vector(size_type count, const T &value = T(), const Allocator &alloc = Allocator())
 			{
+				std::cout << "entra 1" << std::endl;
 				this->_allocator = alloc;
 				if (count > this->max_size())
 					throw std::runtime_error("vector: trying to allocate more than possible");
@@ -43,11 +46,14 @@ namespace ft
 			}
 
 			// TODO:
+			
 			template < class InputIt >
-			vector(InputIt first, InputIt last, const Allocator& alloc = Allocator())
+			vector(InputIt first, typename std::enable_if<ft::is_iterator< InputIt >::value, InputIt>::type last, const Allocator& alloc = Allocator())
 			{
+				std::cout << "entra 2" << std::endl;
 				size_type size = last - first;
 
+				this->_allocator = alloc;
 				this->_data = this->_allocator.allocate(size);
 				this->_size = size;
 				this->_capacity = size;
@@ -57,10 +63,10 @@ namespace ft
 
 				while (it != ite)
 					*it++ = *first++;
-			}
-				
 
-			// TODO:
+			}
+			
+				
 			vector(const vector &other)
 			{
 				if (this == &other)

@@ -1,82 +1,88 @@
 #pragma once
 #include <memory>
+#include "./utils/Iterator.hpp"
 
-template <class Category, class T, class Distance = ptrdiff_t, class Pointer = T *, class Reference = T &>
-struct VectorIterator
-{
-
-	typedef T value_type;
-	typedef Distance difference_type;
-	typedef Pointer pointer;
-	typedef Reference reference;
-	typedef Category iterator_category;
-
-	VectorIterator(pointer p)
+namespace ft {
+	template <class Category, class T, class Distance = ptrdiff_t, class Pointer = T *, class Reference = T &>
+	struct VectorIterator : public ft::Iterator
 	{
-		this->_ptr = p;
-	}
+		//TODO: llevar a la clase padre algun dia
+		typedef T value_type;
+		typedef Distance difference_type;
+		typedef Pointer pointer;
+		typedef Reference reference;
+		typedef Category iterator_category;
 
-	VectorIterator(reference it)
-	{
-		this->_ptr = it._ptr;
-	}
+		VectorIterator(pointer p)
+		{
+			this->_ptr = p;
+		}
 
-	reference operator=(reference it)
-	{
-		if (this == &it)
+		VectorIterator(reference it)
+		{
+			this->_ptr = it._ptr;
+		}
+
+		reference operator=(reference it)
+		{
+			if (this == &it)
+				return *this;
+
+			this->_ptr = it._ptr;
 			return *this;
+		}
 
-		this->_ptr = it._ptr;
-		return *this;
-	}
+		reference operator*()
+		{
+			return *this->_ptr;
+		}
 
-	reference operator*()
-	{
-		return *this->_ptr;
-	}
+		VectorIterator operator++()
+		{
+			++this->_ptr;
+			return *this;
+		}
 
-	VectorIterator operator++()
-	{
-		++this->_ptr;
-		return *this;
-	}
+		VectorIterator operator++(int)
+		{
+			VectorIterator tmp = *this;
+			this->_ptr++;
+			return tmp;
+		}
 
-	VectorIterator operator++(int)
-	{
-		VectorIterator tmp = *this;
-		this->_ptr++;
-		return tmp;
-	}
+		VectorIterator operator--()
+		{
+			--this->_ptr;
+			return *this;
+		}
 
-	VectorIterator operator--()
-	{
-		--this->_ptr;
-		return *this;
-	}
+		VectorIterator operator--(int)
+		{
+			VectorIterator tmp = *this;
+			--this->_ptr;
+			return tmp;
+		}
 
-	VectorIterator operator--(int)
-	{
-		VectorIterator tmp = *this;
-		--this->_ptr;
-		return tmp;
-	}
+		difference_type operator-(VectorIterator &other)
+		{
+			return this->_ptr - other._ptr;
+		}
 
-	difference_type operator-(VectorIterator &other)
-	{
-		return this->_ptr - other._ptr;
-	}
+		bool operator==(const VectorIterator &it) const
+		{
+			return this->_ptr == it._ptr;
+		}
+
+		bool operator!=(const VectorIterator &it) const
+		{
+			return this->_ptr != it._ptr;
+		}
+
+		private:
+			pointer _ptr;
+	};
 
 
-	bool operator==(const VectorIterator &it) const
-	{
-		return this->_ptr == it._ptr;
-	}
 
-	bool operator!=(const VectorIterator &it) const
-	{
-		return this->_ptr != it._ptr;
-	}
+}
 
-	private:
-		pointer _ptr;
-};
