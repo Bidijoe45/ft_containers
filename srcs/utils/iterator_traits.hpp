@@ -12,9 +12,5 @@ namespace ft {
 		typename Iterator::reference reference;
 		typename Iterator::iterator_category iterator_category;
 	};
-
-	template <class Iterator> struct is_iterator : std::false_type {};
-	template <> struct is_iterator<ft::Iterator> : std::true_type {};
-	template <class T> struct is_iterator<ft::VectorIterator<std::random_access_iterator_tag, T> > : std::true_type {};
 	
 }

@@ -1,7 +1,9 @@
 #pragma once
 #include <memory>
-#include "utils/iterator_traits.hpp"
 #include "VectorIterator.hpp"
+#include "utils/iterator_traits.hpp"
+#include "utils/is_integral_traits.hpp"
+#include "utils/enable_if_traits.hpp"
 
 namespace ft
 {
@@ -34,7 +36,6 @@ namespace ft
 			// FIXME: no es seguro, controlar mejor si se intenta alocar una cantidad mayor que max_size
 			explicit vector(size_type count, const T &value = T(), const Allocator &alloc = Allocator())
 			{
-				std::cout << "entra 1" << std::endl;
 				this->_allocator = alloc;
 				if (count > this->max_size())
 					throw std::runtime_error("vector: trying to allocate more than possible");
@@ -46,11 +47,10 @@ namespace ft
 			}
 
 			// TODO:
-			
 			template < class InputIt >
-			vector(InputIt first, typename std::enable_if<ft::is_iterator< InputIt >::value, InputIt>::type last, const Allocator& alloc = Allocator())
+			vector(typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type first, 
+					InputIt last, const Allocator& alloc = Allocator())
 			{
-				std::cout << "entra 2" << std::endl;
 				size_type size = last - first;
 
 				this->_allocator = alloc;
@@ -62,10 +62,13 @@ namespace ft
 				iterator ite = this->end();
 
 				while (it != ite)
-					*it++ = *first++;
+				{
+					*it = *first;
+					it++;
+					first++;
+				}
 
 			}
-			
 				
 			vector(const vector &other)
 			{
@@ -91,6 +94,7 @@ namespace ft
 			// TODO:
 			vector &operator=(const vector &other)
 			{
+				return *this;
 			}
 
 			/* ITERATORS */
