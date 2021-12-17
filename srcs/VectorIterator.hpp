@@ -4,14 +4,14 @@
 
 namespace ft {
 	template <class Category, class T, class Distance = ptrdiff_t, class Pointer = T *, class Reference = T &>
-	struct VectorIterator : public ft::Iterator
+	struct VectorIterator : public ft::Iterator<Category, T, Distance, Pointer, Reference>
 	{
-		//TODO: llevar a la clase padre algun dia
-		typedef T value_type;
-		typedef Distance difference_type;
-		typedef Pointer pointer;
-		typedef Reference reference;
-		typedef Category iterator_category;
+
+		typedef typename Iterator::value_type value_type;
+		typedef typename Iterator::difference_type difference_type;
+		typedef typename Iterator::pointer pointer;
+		typedef typename Iterator::reference reference;
+		typedef typename Iterator::iterator_category iterator_category;
 
 		VectorIterator(pointer p)
 		{
@@ -35,6 +35,11 @@ namespace ft {
 		reference operator*()
 		{
 			return *this->_ptr;
+		}
+
+		pointer operator->()
+		{
+			return this->_ptr;
 		}
 
 		VectorIterator operator++()

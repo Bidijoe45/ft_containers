@@ -16,7 +16,7 @@ namespace ft
 			typedef T value_type;
 			typedef Allocator allocator_type;
 			typedef std::size_t size_type;
-			typedef std::ptrdiff_t difference_type;
+			typedef std::ptrdiff_t 	difference_type;
 			typedef typename Allocator::reference reference;
 			typedef typename Allocator::const_reference const_reference;
 			typedef typename Allocator::pointer pointer;
@@ -139,30 +139,24 @@ namespace ft
 						this->_allocator.destroy(&this->_data[i]);
 
 					this->_size = n;
+					return ;
+				}
+		
+				if (n > this->_capacity)
+				{
+					size_type new_capacity = this->get_new_capacity_size_for(n);
+					
+					this->reserve(new_capacity);
+					for (size_type i=this->_size; i < n; i++)
+						this->_allocator.construct(&this->_data[i], val);
+
 				}
 				else
 				{
-					if (n > this->_capacity)
-					{
-						pointer tmp = this->_allocator.allocate(n);
-
-						size_type i = 0;
-						for (; i < this->_size; i++)
-							tmp[i] = this->_data[i];
-						for (; i < n; i++)
-							this->_allocator.construct(&tmp[i], val);
-
-						this->_allocator.deallocate(this->_data, this->_capacity);
-						this->_data = tmp;
-						this->_size = n;
-						this->_capacity = n;
-					}
-					else
-					{
-						for (size_type i = this->_size; i < n; i++)
-							this->_allocator.construct(&this->_data[i], val);
-					}
+					for (size_type i = this->_size; i < n; i++)
+						this->_allocator.construct(&this->_data[i], val);
 				}
+				
 			}
 
 			size_type capacity() const
@@ -175,9 +169,23 @@ namespace ft
 				return this->_size;
 			}
 
-			// TODO:
 			void reserve(size_type n)
 			{
+				if (n <= this->_capacity)
+					return ;
+
+				pointer tmp = this->_allocator.allocate(n);
+
+				for (size_type i=0; i < this->_size; i++)
+					this->_allocator.construct(&tmp[i], this->_data[i]);
+				
+				for (size_type i=0; i < this->_size; i++)
+					this->_allocator.destroy(&this->_data[i]);
+				this->_allocator.deallocate(this->_data, this->_capacity);
+
+				this->_data = tmp;
+				this->_capacity = n;
+
 			}
 
 			/* ELEMENT ACCESS */
@@ -232,6 +240,13 @@ namespace ft
 			template <class InputIterator>
 			void assign(InputIterator first, InputIterator last)
 			{
+
+			}
+
+			//TODO:
+			void assign (size_type n, const value_type& val)
+			{
+
 			}
 
 			// TODO:
@@ -275,5 +290,15 @@ namespace ft
 			size_type _capacity;
 			pointer _data;
 			Allocator _allocator;
+
+			size_type get_new_capacity_size_for(size_type n)
+			{
+				size_type new_capacity = this->_capacity;
+				
+				while (new_capacity < n)
+					new_capacity *= 2;
+
+				return new_capacity;
+			}
 		};
 }
