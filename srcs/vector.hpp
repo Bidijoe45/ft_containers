@@ -1,6 +1,5 @@
 #pragma once
 #include <memory>
-#include "VectorIterator.hpp"
 #include "utils/iterator_traits.hpp"
 #include "utils/is_integral_traits.hpp"
 #include "utils/enable_if_traits.hpp"
@@ -98,16 +97,6 @@ namespace ft
 			}
 
 			/* ITERATORS */
-			iterator begin()
-			{
-				return iterator(&this->_data[0]);
-			}
-
-			iterator end()
-			{
-				return iterator(&this->_data[this->_size]);
-			}
-
 			const_iterator begin() const
 			{
 				return const_iterator(&this->_data[0]);
@@ -116,6 +105,16 @@ namespace ft
 			const_iterator end() const
 			{
 				return const_iterator(&this->_data[this->_size]);
+			}
+
+			iterator begin()
+			{
+				return iterator(&this->_data[0]);
+			}
+
+			iterator end()
+			{
+				return iterator(&this->_data[this->_size]);
 			}
 
 			/* CAPACITY */

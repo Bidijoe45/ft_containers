@@ -6,7 +6,6 @@
 #include "./srcs/vector.hpp"
 #include "./srcs/utils/is_integral_traits.hpp"
 #include "./srcs/utils/iterator_traits.hpp"
-#include "./srcs/utils/Iterator.hpp"
 
 //ALLOCATOR USE TEST
 
@@ -119,17 +118,18 @@ int main ()
 {
 
 	std::vector<int> std_vec1(3, 2);
-
-	std::vector<int>::iterator std_it = std_vec1.begin();
-
-	std::iterator_traits<std::vector<int>::iterator>::iterator_category;
-	
+	std::vector<int>::iterator std_it1 = std_vec1.begin();
+	std::vector<int>::iterator std_it2;
+	std::vector<int>::const_iterator std_it3 = std_vec1.begin();
 
 	ft::vector<int> ft_vec1(3, 2);
 
-	ft::vector<int>::iterator ft_it = ft_vec1.begin();
+	ft::vector<int>::iterator ft_it1 = ft_vec1.begin();
+	ft::vector<int>::iterator ft_it2;
+	ft::vector<int>::const_iterator ft_it3 = ft_vec1.begin();
 
-	ft::iterator_traits<ft::vector<int>::iterator>::iterator_category;
+	ft_it2 = ft_it1;
+
 
 	return 0;
 }
