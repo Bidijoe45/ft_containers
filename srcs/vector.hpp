@@ -33,7 +33,6 @@ namespace ft
 				this->_allocator = alloc;
 			}
 
-			// FIXME: no es seguro, controlar mejor si se intenta alocar una cantidad mayor que max_size
 			explicit vector(size_type count, const T &value = T(), const Allocator &alloc = Allocator())
 			{
 				this->_allocator = alloc;
@@ -51,6 +50,7 @@ namespace ft
 			vector(typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type first, 
 					InputIt last, const Allocator& alloc = Allocator())
 			{
+				//FIXME: Esto no funciona con una lista, deberia usar 
 				size_type size = last - first;
 
 				this->_allocator = alloc;
