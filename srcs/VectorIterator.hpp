@@ -54,6 +54,11 @@ namespace ft {
 			return this->_ptr;
 		}
 
+		reference operator[](difference_type n)
+		{
+			return this->_ptr[n];
+		}
+
 		VectorIterator operator++()
 		{
 			++this->_ptr;
@@ -80,24 +85,24 @@ namespace ft {
 			return tmp;
 		}
 
-		difference_type operator-(VectorIterator &other)
+		difference_type operator-(difference_type n)
 		{
-			return this->_ptr - other._ptr;
+			return this->_ptr - n;
 		}
 
-		difference_type operator-=(VectorIterator &other)
+		difference_type operator-=(difference_type n)
 		{
-			return this->_ptr - other._ptr;
+			return this->_ptr - n;
 		}
 
-		difference_type operator+(VectorIterator &other)
+		difference_type operator+(difference_type n)
 		{
-			return this->_ptr + other._ptr;
+			return this->_ptr + n;
 		}
 
-		difference_type operator+=(VectorIterator &other)
+		difference_type operator+=(difference_type n)
 		{
-			return this->_ptr + other._ptr;
+			return this->_ptr + n;
 		}
 
 		bool operator==(const VectorIterator &it) const
