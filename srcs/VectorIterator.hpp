@@ -1,18 +1,19 @@
 #pragma once
 #include <memory>
-#include "./utils/Iterator.hpp"
+#include "./utils/IteratorBase.hpp"
 
 namespace ft {
-	template <class Category, class T, class Distance = ptrdiff_t, class Pointer = T *, class Reference = T &>
-	struct VectorIterator 
+
+	template <class Category, class T>
+	struct VectorIterator : public ft::IteratorBase<Category, T>
 	{
-
-		typedef T value_type;
-		typedef Distance difference_type;
-		typedef Pointer pointer;
-		typedef Reference reference;
-		typedef Category iterator_category;
-
+		
+		typedef typename ft::IteratorBase<Category, T>::value_type value_type;
+		typedef typename ft::IteratorBase<Category, T>::difference_type difference_type;
+		typedef typename ft::IteratorBase<Category, T>::pointer pointer;
+		typedef typename ft::IteratorBase<Category, T>::reference reference;
+		typedef typename ft::IteratorBase<Category, T>::iterator_category iterator_category;
+	
 		VectorIterator()
 		{
 			this->_ptr = nullptr;
@@ -28,8 +29,8 @@ namespace ft {
 			this->_ptr - &r;
 		}
 		
-		template<class ItCategory, class ItT, class ItDistance, class ItPointer, class ItReference>
-		VectorIterator(const VectorIterator<ItCategory, ItT, ItDistance, ItPointer, ItReference> &it)
+		template<class ItCategory, class ItT>
+		VectorIterator(const VectorIterator<ItCategory, ItT> &it)
 		{
 			this->_ptr = it.base();
 		}
