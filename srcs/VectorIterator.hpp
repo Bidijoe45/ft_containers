@@ -1,20 +1,22 @@
 #pragma once
 #include <memory>
+#include "./utils/IteratorBase.hpp"
 
 namespace ft {
-	template <class Category, class T, class Distance = ptrdiff_t, class Pointer = T *, class Reference = T &>
-	struct VectorIterator
+
+	template <class Category, class T>
+	struct VectorIterator : public ft::IteratorBase<Category, T>
 	{
-
-		typedef T value_type;
-		typedef Distance difference_type;
-		typedef Pointer pointer;
-		typedef Reference reference;
-		typedef Category iterator_category;
-
+		
+		typedef typename ft::IteratorBase<Category, T>::value_type value_type;
+		typedef typename ft::IteratorBase<Category, T>::difference_type difference_type;
+		typedef typename ft::IteratorBase<Category, T>::pointer pointer;
+		typedef typename ft::IteratorBase<Category, T>::reference reference;
+		typedef typename ft::IteratorBase<Category, T>::iterator_category iterator_category;
+	
 		VectorIterator()
 		{
-			this->_ptr = NULL;
+			this->_ptr = nullptr;
 		}
 
 		VectorIterator(pointer p)
@@ -24,39 +26,42 @@ namespace ft {
 
 		VectorIterator(reference r)
 		{
-			this->_ptr = &r;
+			this->_ptr - &r;
 		}
-
-		template<class ItCategory, class ItT, class ItDistance, class ItPointer, class ItReference>
-		VectorIterator(const VectorIterator<ItCategory, ItT, ItDistance, ItPointer, ItReference> &it)
+		
+		template<class ItCategory, class ItT>
+		VectorIterator(const VectorIterator<ItCategory, ItT> &it)
 		{
 			this->_ptr = it.base();
 		}
 
-		VectorIterator &operator=(const VectorIterator &it)
+		VectorIterator operator=(const VectorIterator &it)
 		{
 			if (this == &it)
 				return *this;
 
-			this->_ptr = it._ptr;
+			this->_ptr = it.base();
 			return *this;
 		}
 
-		reference operator*()
-		{
-			if (this->_ptr == NULL)
-				return 0x0;
-			return *this->_ptr;
-		}
-
-		pointer operator->()
+		pointer base() const
 		{
 			return this->_ptr;
 		}
 
-		reference operator[](difference_type n)
+		reference operator*()
 		{
-			return this->_ptr[n];
+			return *this->_ptr;
+		}
+
+		pointer operator->() const
+		{
+			return this->_ptr;
+		}
+
+		reference operator[](const difference_type &n) const
+		{
+			return (this->_ptr[n]);
 		}
 
 		VectorIterator operator++()
@@ -85,24 +90,26 @@ namespace ft {
 			return tmp;
 		}
 
-		difference_type operator-(difference_type n)
+		VectorIterator operator+(const difference_type &n)
 		{
-			return this->_ptr - n;
+			return VectorIterator(this->_ptr + n);
 		}
 
-		difference_type operator-=(difference_type n)
+		VectorIterator &operator+=(const difference_type &n)
 		{
-			return this->_ptr - n;
+			this->_ptr += n;
+			return *this;
 		}
 
-		difference_type operator+(difference_type n)
+		VectorIterator operator-(const difference_type &n)
 		{
-			return this->_ptr + n;
+			return VectorIterator(this->_ptr - n);
 		}
 
-		difference_type operator+=(difference_type n)
+		VectorIterator &operator-=(const difference_type &n)
 		{
-			return this->_ptr + n;
+			this->_ptr -= n;
+			return *this;
 		}
 
 		bool operator==(const VectorIterator &it) const
@@ -115,16 +122,8 @@ namespace ft {
 			return this->_ptr != it._ptr;
 		}
 
-		pointer base() const
-		{
-			return this->_ptr;
-		}
-
 		private:
 			pointer _ptr;
 	};
 
-
-
 }
-
