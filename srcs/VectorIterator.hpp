@@ -1,18 +1,18 @@
 #pragma once
 #include <memory>
-#include "./utils/IteratorBase.hpp"
+#include "./utils/iterator.hpp"
+#include "./utils/iterator_traits.hpp"
 
 namespace ft {
 
-	template <class Category, class T>
-	struct VectorIterator : public ft::IteratorBase<Category, T>
+	template <class T>
+	struct VectorIterator 
 	{
-		
-		typedef typename ft::IteratorBase<Category, T>::value_type value_type;
-		typedef typename ft::IteratorBase<Category, T>::difference_type difference_type;
-		typedef typename ft::IteratorBase<Category, T>::pointer pointer;
-		typedef typename ft::IteratorBase<Category, T>::reference reference;
-		typedef typename ft::IteratorBase<Category, T>::iterator_category iterator_category;
+		typedef T value_type;
+		typedef std::ptrdiff_t difference_type;
+		typedef T * pointer;
+		typedef T & reference;
+		typedef std::random_access_iterator_tag iterator_cateogry;
 	
 		VectorIterator()
 		{
@@ -29,8 +29,8 @@ namespace ft {
 			this->_ptr - &r;
 		}
 		
-		template<class ItCategory, class ItT>
-		VectorIterator(const VectorIterator<ItCategory, ItT> &it)
+		template<class ItT>
+		VectorIterator(const VectorIterator<ItT> &it)
 		{
 			this->_ptr = it.base();
 		}
@@ -126,4 +126,54 @@ namespace ft {
 			pointer _ptr;
 	};
 
+	template<class T>
+	VectorIterator<T> operator+(typename VectorIterator<T>::difference_type n, const VectorIterator<T> &it)
+	{
+		return VectorIterator<T>(it.base() + n);
+	}
+
+	template<class T, class U>
+	const typename VectorIterator<T>::difference_type operator-(const VectorIterator<T> &lhs, const VectorIterator<U> &rhs)
+	{
+		return lhs.base() - rhs.base();
+	}
+
+	template <class T, class U>
+	bool operator==(const VectorIterator<T> &lhs, const VectorIterator<U> &rhs)
+	{
+		return rhs.base() == lhs.base();
+	}
+
+	template <class T, class U>
+	bool operator!=(const VectorIterator<T> &lhs, const VectorIterator<U> &rhs)
+	{
+		return lhs.base() != rhs.base();
+	}
+					
+
+	template <class T, class U>
+	bool operator<(const VectorIterator<T> &lhs, const VectorIterator<U> &rhs)
+	{
+		return lhs.base() < rhs.base();
+	}
+
+	template <class T, class U>
+	bool operator<=(const VectorIterator<T> &lhs, const VectorIterator<U> &rhs)
+	{
+		return lhs.base() <= rhs.base();
+	}
+
+	template <class T, class U>
+	bool operator>(const VectorIterator<T> &lhs, const VectorIterator<U> &rhs)
+	{
+		return lhs.base() > rhs.base();
+	}
+
+	template <class T, class U>
+	bool operator>=(const VectorIterator<T> &lhs, const VectorIterator<U> &rhs)
+	{
+		return lhs.base() >= rhs.base();
+	}
+
 }
+

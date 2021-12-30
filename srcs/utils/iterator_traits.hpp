@@ -1,11 +1,9 @@
 #pragma once
-#include <type_traits>
-#include "../VectorIterator.hpp"
 
 namespace ft {
 	template <class Iterator> struct iterator_traits
 	{
-		typedef typename Iterator::diference_type		diference_type;
+		typedef typename Iterator::difference_type		difference_type;
 		typedef typename Iterator::value_type			value_type;
 		typedef typename Iterator::pointer				pointer;
 		typedef typename Iterator::reference			reference;
