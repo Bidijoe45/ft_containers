@@ -1,6 +1,7 @@
 #pragma once
 
 namespace ft {
+
 	template <class Iterator> struct iterator_traits
 	{
 		typedef typename Iterator::difference_type		difference_type;
@@ -9,5 +10,8 @@ namespace ft {
 		typedef typename Iterator::reference			reference;
 		typedef typename Iterator::iterator_category	iterator_category;
 	};
+
+
+
 	
 }

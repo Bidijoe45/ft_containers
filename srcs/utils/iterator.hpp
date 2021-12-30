@@ -1,4 +1,5 @@
 #pragma once
+#include "iterator_traits.hpp"
 #include <memory>
 
 namespace ft
@@ -42,52 +43,15 @@ namespace ft
 			virtual ~random_access_iterator() {}
 			
 
+			//TODO: comprobar si esto esta bien asi o es un template y hay que indicar el tipo de iterador
 			random_access_iterator &operator=(const random_access_iterator &it)
 			{
 				this->_elemPtr = it._elemPtr;
 				return *this;
 			}
 
-			/* COMPARSION OPERATORS */
-
-			template<class U>
-			bool operator==(const random_access_iterator<U> &it)
-			{
-				return this->_elemPtr == it._elemPtr;
-			}
-
-			template<class U>
-			bool operator!=(const random_access_iterator<U> &it)
-			{
-				return this->_elemPtr != it._elemPtr;
-			}
-
-			template<class U>
-			bool operator<(const random_access_iterator<U> &it)
-			{
-				return this->_elemPtr < it._elemPtr;
-			}
-
-			template<class U>
-			bool operator<=(const random_access_iterator<U> &it)
-			{
-				return this->_elemPtr <= it._elemPtr;
-			}
-
-			template<class U>
-			bool operator>(const random_access_iterator<U> &it)
-			{
-				return this->_elemPtr > it._elemPtr;
-			}
-
-			template<class U>
-			bool operator>=(const random_access_iterator<U> &it)
-			{
-				return this->_elemPtr >= it._elemPtr;
-			}
 
 			/* ACCESS OPERATORS*/
-			template<class U>
 			reference operator*()
 			{
 				return *this->_elemPtr;
@@ -98,10 +62,111 @@ namespace ft
 				return *this->_elemPtr[n];
 			}
 
+			pointer operator->()
+			{
+				return this->_elemPtr;
+			}
+
 
 			/* OPERATIONS OPERATORS*/
-			//TODO:
 
+			random_access_iterator &operator++()
+			{
+				this->_elemPtr++;
+				return *this;
+			}
+
+			random_access_iterator operator++(int)
+			{
+				random_access_iterator it(*this);
+				this->_elemPtr++;
+				return it;
+			}
+
+			random_access_iterator operator+(difference_type n) const
+			{
+				random_access_iterator it(*this);
+				it->_elemPtr += n;
+				return it;
+			}
+
+			random_access_iterator &operator+=(difference_type n)
+			{
+				this->_elemPtr += n;
+				return *this;
+			}
+
+			random_access_iterator &operator--()
+			{
+				this->_elemPtr--;
+				return *this;
+			}
+
+			random_access_iterator operator--(int)
+			{
+				random_access_iterator it(*this);
+				this->_elemPtr--;
+				return it;
+			}
+
+			random_access_iterator &operator-(difference_type n) const
+			{
+				random_access_iterator it(*this);
+				it->_elemPtr -= n;
+				return it;
+			}
+			
+			random_access_iterator &operator-=(difference_type n)
+			{
+				this->_elemPtr -= n;
+				return *this;
+			}
+
+			template <class U>
+			friend random_access_iterator<U> operator+(random_access_iterator<U>::difference_type, const random_access_iterator<U>& rev_it)
+			{
+				random_access_iterator<U> it(rev_it);
+				it->_elemPtr += n;
+				return it;
+			}
+
+			template <class U, class V>
+ 			friend typename random_access_iterator<U>::difference_type operator-(const random_access_iterator<U>& lhs, const random_access_iterator<V>& rhs)
+			{
+				return lhs._elemPtr - rhs._elemPtr;
+			}
+
+			/* RELATIONAL OPERATORS */
+
+			template <class U, class V>
+			friend bool operator==(const random_access_iterator<U>& lhs, const random_access_iterator<V>& rhs) {
+				return lhs._elemPtr == rhs._elemPtr;
+			}
+
+			template <class U, class V>
+			friend bool operator!=(const random_access_iterator<U>& lhs, const random_access_iterator<V>& rhs) {
+				return lhs._elemPtr != rhs._elemPtr;
+			}
+
+			template <class U, class V>
+			friend bool operator<(const random_access_iterator<U>& lhs, const random_access_iterator<V>& rhs) {
+				return lhs._elemPtr < rhs._elemPtr;
+			}
+
+			template <class U, class V>
+			friend bool operator<=(const random_access_iterator<U>& lhs, const random_access_iterator<V>& rhs) {
+				return lhs._elemPtr <= rhs._elemPtr;
+			}
+
+			template <class U, class V>
+			friend bool operator>(const random_access_iterator<U>& lhs, const random_access_iterator<V>& rhs) {
+				return lhs._elemPtr > rhs._elemPtr;
+			}
+
+			template <class U, class V>
+			friend bool operator>=(const random_access_iterator<U>& lhs, const random_access_iterator<V>& rhs) {
+				return lhs._elemPtr >= rhs._elemPtr;
+			}
 
 		private:
 			pointer _elemPtr;
