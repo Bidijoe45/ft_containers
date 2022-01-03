@@ -16,7 +16,7 @@ namespace ft
 	};
 
 	template<class T>
-	class random_access_iterator : ft::iterator<std::random_access_iterator_tag, T>{
+	class random_access_iterator : ft::iterator<std::random_access_iterator_tag, T> {
 		public:
 			typedef typename ft::iterator<std::random_access_iterator_tag, T>::value_type			value_type;
 			typedef typename ft::iterator<std::random_access_iterator_tag, T>::difference_type		difference_type;
@@ -96,6 +96,14 @@ namespace ft
 				return *this;
 			}
 
+			template <class U>
+			friend random_access_iterator<U> operator+(typename random_access_iterator<U>::difference_type n, const random_access_iterator<U> &it)
+			{
+				random_access_iterator  tmp_it(it);
+				tmp_it += n;
+				return tmp_it;
+			}
+
 			random_access_iterator &operator--()
 			{
 				this->_elemPtr--;
@@ -122,13 +130,6 @@ namespace ft
 				return *this;
 			}
 
-			template <class U>
-			friend random_access_iterator<U> operator+(random_access_iterator<U>::difference_type, const random_access_iterator<U>& rev_it)
-			{
-				random_access_iterator<U> it(rev_it);
-				it->_elemPtr += n;
-				return it;
-			}
 
 			template <class U, class V>
  			friend typename random_access_iterator<U>::difference_type operator-(const random_access_iterator<U>& lhs, const random_access_iterator<V>& rhs)
@@ -167,9 +168,12 @@ namespace ft
 			friend bool operator>=(const random_access_iterator<U>& lhs, const random_access_iterator<V>& rhs) {
 				return lhs._elemPtr >= rhs._elemPtr;
 			}
+			
+			
 
 		private:
 			pointer _elemPtr;
 	};
 
+	
 } 

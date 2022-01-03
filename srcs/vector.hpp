@@ -3,7 +3,7 @@
 #include "utils/iterator_traits.hpp"
 #include "utils/is_integral_traits.hpp"
 #include "utils/enable_if_traits.hpp"
-#include "VectorIterator.hpp"
+#include "utils/iterator.hpp"
 
 namespace ft
 {
@@ -21,8 +21,8 @@ namespace ft
 			typedef typename Allocator::const_reference const_reference;
 			typedef typename Allocator::pointer pointer;
 			typedef typename Allocator::const_pointer const_pointer;
-			typedef VectorIterator<T> iterator;
-			typedef VectorIterator<const T> const_iterator;
+			typedef random_access_iterator<T> iterator;
+			typedef random_access_iterator<const T> const_iterator;
 
 			/* CONSTRUCTORS */
 
