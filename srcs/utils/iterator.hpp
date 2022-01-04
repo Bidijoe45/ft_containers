@@ -115,7 +115,7 @@ namespace ft
 
 			random_access_iterator operator-(difference_type n) const
 			{
-				pointer tmpPtr = this->base() + n;
+				pointer tmpPtr = this->base() - n;
 				random_access_iterator tmpIt(tmpPtr);
 				return tmpIt;
 			}
