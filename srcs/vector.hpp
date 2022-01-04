@@ -5,6 +5,8 @@
 #include "utils/enable_if_traits.hpp"
 #include "utils/iterator.hpp"
 
+#include <iostream>
+
 namespace ft
 {
 
@@ -21,8 +23,8 @@ namespace ft
 			typedef typename Allocator::const_reference const_reference;
 			typedef typename Allocator::pointer pointer;
 			typedef typename Allocator::const_pointer const_pointer;
-			typedef random_access_iterator<T> iterator;
-			typedef random_access_iterator<const T> const_iterator;
+			typedef ft::random_access_iterator<value_type> iterator;
+			typedef ft::random_access_iterator<const value_type> const_iterator;
 
 			/* CONSTRUCTORS */
 
