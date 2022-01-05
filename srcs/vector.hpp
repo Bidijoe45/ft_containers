@@ -47,14 +47,17 @@ namespace ft
 					this->_allocator.construct(&this->_data[i], value);
 			}
 
-			// TODO:
 			template < class InputIt >
 			vector(typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type first, 
 					InputIt last, const Allocator& alloc = Allocator())
 			{
-				//FIXME: Esto no funciona con una lista, deberia usar 
-				size_type size = last - first;
+				
+				InputIt tmpFirst = first;
+				size_type size = 0;
 
+				while (tmpFirst++ != last)
+					size++;
+				
 				this->_allocator = alloc;
 				this->_data = this->_allocator.allocate(size);
 				this->_size = size;
