@@ -75,24 +75,9 @@ int main()
 	return 0;
 }
 */
-
-enum e_namespace {
-	e_STD,
-	e_FT
-};
-
-void print_namespace(e_namespace ns)
-{
-	if (ns == e_STD)
-		std::cout << "STD" << std::endl;
-	else if (ns == e_FT)
-		std::cout << "FT" << std::endl;
-}
-
 template<class T>
-void print_vector_stats(T &vec, e_namespace ns)
+void print_vector_stats(T &vec)
 {
-	print_namespace(ns);
 	std::cout << std::endl << "-- vector stats -- " << std::endl;
 	std::cout << "size: " << vec.size() << std::endl;
 	std::cout << "capacity: " << vec.capacity() << std::endl;
@@ -100,9 +85,8 @@ void print_vector_stats(T &vec, e_namespace ns)
 }
 
 template<class T>
-void print_vector_content(T &vec, e_namespace ns)
+void print_vector_content(T &vec)
 {
-	print_namespace(ns);
 	typename T::iterator it = vec.begin();
 	typename T::iterator ite = vec.end();
 
@@ -116,21 +100,19 @@ void print_vector_content(T &vec, e_namespace ns)
 //Vector TEST
 int main ()
 {
+	
+	ft::vector<int> ft_vec1(4, 69);
+	
+	ft_vec1[0] = 1;
+	ft_vec1[1] = 2;
+	ft_vec1[2] = 3;
+	ft_vec1[3] = 4;
 
-	std::vector<int> std_vec1(3, 2);
-	std::vector<int>::iterator std_it1 = std_vec1.begin();
-	std::vector<int>::iterator std_it2;
-	std::vector<int>::const_iterator std_it3 = std_vec1.begin();
+	print_vector_content(ft_vec1);
 
-	ft::vector<int> ft_vec1(3, 2);
+	ft_vec1.assign(6, 10);
 
-	ft::vector<int>::iterator ft_it1 = ft_vec1.begin();
-	ft::vector<int>::iterator ft_it2;
-	ft::vector<int>::const_iterator ft_it3 = ft_vec1.begin();
-
-	ft_it2 = ft_it1;
-
+	print_vector_content(ft_vec1);
 
 	return 0;
 }
-

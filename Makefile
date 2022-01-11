@@ -5,7 +5,7 @@ OBJS = $(SRCS:.cpp=.o)
 all: $(NAME)
 
 $(NAME) : $(OBJS)
-	clang++ $(OBJS) -o $(NAME) -std=c++98
+	clang++ $(OBJS) -o $(NAME) -std=c++98 -g3 -fsanitize=address
 
 clean:
 	rm -rf $(OBJS)

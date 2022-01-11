@@ -51,7 +51,6 @@ namespace ft
 			vector(typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type first, 
 					InputIt last, const Allocator& alloc = Allocator())
 			{
-				
 				InputIt tmpFirst = first;
 				size_type size = 0;
 
@@ -99,6 +98,27 @@ namespace ft
 			// TODO:
 			vector &operator=(const vector &other)
 			{
+				if (this == &other)
+					return *this;
+
+				this->reserve(other.size());
+				this->_size = other.size();
+				this->_allocator = other.get_allocator();
+
+				iterator it = other.begin();
+				iterator ite = other.end();
+
+				iterator this_it = this->begin();
+				iterator this_ite = this->end();
+
+				while (it != ite)
+				{
+					*this_it = *it;	
+
+					it++;
+					this_it++;
+				}
+
 				return *this;
 			}
 
@@ -241,17 +261,35 @@ namespace ft
 
 			/* MODIFIERS */
 
-			// TODO:
+			// FIXME: Hay que usar enable_if
 			template <class InputIterator>
 			void assign(InputIterator first, InputIterator last)
 			{
+				InputIterator tmp_first = first;
+				InputIterator tmp_last = last;
+
+				size_t size = 0;
+
+				while (tmp_first++ != tmp_last)
+					size++;	
+
+				if (size > this->capacity())		
+					this->reserve(size);
+				
+				iterator it = this->begin();
+				while (first != last)
+				{
+					*it = *first;	
+					it++;
+					first++;
+				}
 
 			}
 
-			//TODO:
+			//FIXME: esto no funciona...
 			void assign (size_type n, const value_type& val)
 			{
-
+				this->resize(n, val);
 			}
 
 			// TODO:
