@@ -90,9 +90,11 @@ namespace ft
 				}
 			}
 
-			// TODO:
 			~vector()
 			{
+				for (int i; i < this->size(); i++)
+					this->_allocator.destroy(&this->_data[i]);
+				this->_allocator.deallocate(this->_data, this->capacity());
 			}
 
 			// TODO:
@@ -260,10 +262,8 @@ namespace ft
 			}
 
 			/* MODIFIERS */
-
-			// FIXME: Hay que usar enable_if
 			template <class InputIterator>
-			void assign(InputIterator first, InputIterator last)
+			void assign(typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last)
 			{
 				InputIterator tmp_first = first;
 				InputIterator tmp_last = last;
@@ -276,14 +276,15 @@ namespace ft
 				if (size > this->capacity())		
 					this->reserve(size);
 				
+				std::cout << "XXX: " << size << std::endl;
+				
 				iterator it = this->begin();
 				while (first != last)
 				{
-					*it = *first;	
+					*it = *first;
 					it++;
 					first++;
 				}
-
 			}
 
 			//FIXME: esto no funciona...
