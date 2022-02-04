@@ -47,9 +47,8 @@ namespace ft
 					this->_allocator.construct(&this->_data[i], value);
 			}
 
-			template < class InputIt >
-			vector(typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type first, 
-					InputIt last, const Allocator& alloc = Allocator())
+			template <class InputIt>
+			vector(typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type first, InputIt last, const Allocator& alloc = Allocator())
 			{
 				InputIt tmpFirst = first;
 				size_type size = 0;
@@ -196,6 +195,7 @@ namespace ft
 				return this->_size;
 			}
 
+			//FIXME: Al reservar el iterator debe ponerse en el ultimo elemento, pero no lo hace
 			void reserve(size_type n)
 			{
 				if (n <= this->_capacity)
@@ -266,31 +266,27 @@ namespace ft
 			void assign(typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last)
 			{
 				InputIterator tmp_first = first;
-				InputIterator tmp_last = last;
-
 				size_t size = 0;
 
-				while (tmp_first++ != tmp_last)
+				while (tmp_first++ != last)
 					size++;	
 
 				if (size > this->capacity())		
 					this->reserve(size);
 				
-				std::cout << "XXX: " << size << std::endl;
-				
-				iterator it = this->begin();
+				size_type i=0;
 				while (first != last)
 				{
-					*it = *first;
-					it++;
+					this->_data[i] = *first;
 					first++;
+					i++;
 				}
+				this->_size = size;
 			}
 
-			//FIXME: esto no funciona...
 			void assign (size_type n, const value_type& val)
 			{
-				this->resize(n, val);
+				
 			}
 
 			// TODO:
@@ -303,8 +299,132 @@ namespace ft
 			{
 			}
 
-			// TODO:
-			// insert
+			// TODO: Lanzar excepcion si no se puede alocar la nueva cantidad
+		
+			void insert(iterator position, size_type n, const value_type &val)
+			{
+				size_type new_size = this->size() + n;
+				size_type position_i = position - this->begin();
+
+				if (this->size() + n > this->capacity())
+				{
+					size_type new_capacity = this->get_new_capacity_size_for(new_size);
+					pointer new_data = this->_allocator.allocate(new_capacity);
+
+					size_type data_i = 0;
+					size_type new_data_i = 0;
+					while (data_i < this->size())
+					{
+						if (new_data_i == position_i)
+							new_data_i += n;
+						new_data[new_data_i] = this->_data[data_i];
+						new_data_i++;
+						data_i++;
+					}
+
+					size_type copy_until_position = position_i + n;
+					while (position_i < copy_until_position)
+					{
+						new_data[position_i] = val;
+						position_i++;
+					}
+
+					for (int i=0; i < this->size(); i++)
+						this->_allocator.destroy(&this->_data[i]);
+
+					this->_allocator.deallocate(this->_data, this->capacity());
+					this->_data = new_data;
+					this->_size = new_size;
+				}
+				else
+				{
+					size_type last_elem_i = this->end() - this->begin() - 1;
+					size_type copy_until_i = last_elem_i;
+					size_type copy_i = last_elem_i + n;
+
+					while (copy_i > copy_until_i)
+					{
+						this->_data[copy_i] = this->_data[last_elem_i];
+						this->_data[last_elem_i] = -1;
+						copy_i--;
+						last_elem_i--;
+					}
+
+					for (size_type i=0; i < n; i++)
+					{
+						this->_data[position_i] = val;
+						position_i++;
+					}
+
+					this->_size = this->size() + n;
+				}
+			}
+
+
+			//FIXME: refactorizar esta mierda
+			iterator insert (iterator position, const value_type& val)
+			{
+				size_type n = 1;
+				size_type new_size = this->size() + n;
+				size_type position_i = position - this->begin();
+
+				if (this->size() + n > this->capacity())
+				{
+					size_type new_capacity = this->get_new_capacity_size_for(new_size);
+					pointer new_data = this->_allocator.allocate(new_capacity);
+
+					size_type data_i = 0;
+					size_type new_data_i = 0;
+					while (data_i < this->size())
+					{
+						if (new_data_i == position_i)
+							new_data_i += n;
+						new_data[new_data_i] = this->_data[data_i];
+						new_data_i++;
+						data_i++;
+					}
+
+					new_data[position_i] = val;
+					
+
+					for (int i=0; i < this->size(); i++)
+						this->_allocator.destroy(&this->_data[i]);
+
+					this->_allocator.deallocate(this->_data, this->capacity());
+					this->_data = new_data;
+					this->_size = new_size;
+					return iterator(&this->_data[position_i]);
+
+				}
+				else
+				{
+					size_type last_elem_i = this->end() - this->begin() - 1;
+					size_type copy_until_i = last_elem_i;
+					size_type copy_i = last_elem_i + n;
+
+					while (copy_i > copy_until_i)
+					{
+						this->_data[copy_i] = this->_data[last_elem_i];
+						this->_data[last_elem_i] = -1;
+						copy_i--;
+						last_elem_i--;
+					}
+
+					
+					this->_data[position_i] = val;
+					
+
+					this->_size = this->size() + n;
+					return iterator(&this->_data[position_i]);
+
+				}
+			}
+		
+			template <class InputIterator>
+			void insert(iterator position, InputIterator first, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type last)
+			{
+
+			}
 
 			// TODO:
 			// erase

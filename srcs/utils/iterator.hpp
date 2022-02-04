@@ -129,6 +129,7 @@ namespace ft
 		
 		private:
 			pointer _elemPtr;
+			
 	};
 
 
