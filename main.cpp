@@ -90,29 +90,69 @@ void print_vector_content(T &vec)
 	typename T::iterator it = vec.begin();
 	typename T::iterator ite = vec.end();
 
+	std::cout << "---- CONTENT ----" << std::endl;
 	while (it != ite)
 	{
 		std::cout << *it << std::endl;
 		it++;
 	}
+	std::cout << "-----------------" << std::endl;
 }
 
 //Vector TEST
 int main ()
 {
 	
-	ft::vector<int> ft_vec1(4, 69);
-	
+	/*
+	ft::vector<int> ft_vec1(10, 69);
+
 	ft_vec1[0] = 1;
 	ft_vec1[1] = 2;
 	ft_vec1[2] = 3;
 	ft_vec1[3] = 4;
+	ft_vec1[4] = 5;
+	ft_vec1[5] = 6;
+	ft_vec1[6] = 7;
+	ft_vec1[7] = 8;
+	ft_vec1[8] = 9;
+	ft_vec1[9] = 10;
 
-	print_vector_content(ft_vec1);
+	ft::vector<int> ft_vec2;
+	ft_vec2[0] = -1;
+	ft_vec2[1] = -2;
+	ft_vec2[2] = -3;
+	ft_vec2[3] = -4;
+	*/
 
-	ft_vec1.assign(6, 10);
 
-	print_vector_content(ft_vec1);
+	ft::vector<int> vct(5);
+	ft::vector<int> vct2;
+	const int cut = 3;
+
+	for (unsigned long int i = 0; i < vct.size(); ++i)
+		vct[i] = i + 1;
+	print_vector_stats(vct);
+	print_vector_content(vct);
+
+	vct2.insert(vct2.begin(), vct.begin(), vct.begin() + cut);
+	print_vector_stats(vct2);
+	print_vector_content(vct2);
+
+	vct2.insert(vct2.begin(), vct.begin() + cut, vct.end());
+	print_vector_stats(vct2);
+	print_vector_content(vct2);
+
+	vct2.insert(vct2.end(), vct.begin(), vct.begin() + cut);
+	print_vector_stats(vct2);
+	print_vector_content(vct2);
+
+	std::cout << "insert return:" << std::endl;
+
+	std::cout << *vct2.insert(vct2.end(), 42) << std::endl;
+	std::cout << *vct2.insert(vct2.begin() + 5, 84) << std::endl;
+	std::cout << "----------------------------------------" << std::endl;
+
+	print_vector_content(vct2);
 
 	return 0;
 }

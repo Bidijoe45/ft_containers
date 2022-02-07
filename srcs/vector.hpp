@@ -303,6 +303,7 @@ namespace ft
 		
 			void insert(iterator position, size_type n, const value_type &val)
 			{
+
 				size_type new_size = this->size() + n;
 				size_type position_i = position - this->begin();
 
@@ -335,12 +336,14 @@ namespace ft
 					this->_allocator.deallocate(this->_data, this->capacity());
 					this->_data = new_data;
 					this->_size = new_size;
+					this->_capacity = new_capacity;
+
 				}
 				else
 				{
-					size_type last_elem_i = this->end() - this->begin() - 1;
+					size_type last_elem_i = this->end() - this->begin();
 					size_type copy_until_i = last_elem_i;
-					size_type copy_i = last_elem_i + n;
+					size_type copy_i = last_elem_i + n - 1;
 
 					while (copy_i > copy_until_i)
 					{
@@ -360,11 +363,81 @@ namespace ft
 				}
 			}
 
-
-			//FIXME: refactorizar esta mierda
 			iterator insert (iterator position, const value_type& val)
 			{
+
 				size_type n = 1;
+				size_type new_size = this->size() + n;
+				size_type position_i = position - this->begin();
+
+				if (this->size() + n > this->capacity())
+				{
+					size_type new_capacity = this->get_new_capacity_size_for(new_size);
+
+					pointer new_data = this->_allocator.allocate(new_capacity);
+					this->_capacity = new_capacity;
+
+					size_type data_i = 0;
+					size_type new_data_i = 0;
+					
+					while (data_i < this->size())
+					{
+						if (new_data_i == position_i)
+							new_data_i += n;
+						new_data[new_data_i] = this->_data[data_i];
+						new_data_i++;
+						data_i++;
+					}
+
+					new_data[position_i] = val;
+
+					for (int i=0; i < this->size(); i++)
+						this->_allocator.destroy(&this->_data[i]);
+
+					this->_allocator.deallocate(this->_data, this->capacity());
+					this->_data = new_data;
+					this->_size = new_size;
+					this->_capacity = new_capacity;
+
+					return iterator(&this->_data[position_i]);
+				}
+				else
+				{
+					size_type last_elem_i = this->end() - this->begin();
+					size_type copy_until_i = last_elem_i;
+					size_type copy_i = last_elem_i + n;
+
+					std::cout << "copy_until_i: " << copy_until_i << std::endl; 
+					std::cout << "last_elem_i: " << last_elem_i << std::endl;   
+					std::cout << "copy_i: " << copy_i << std::endl;				
+
+					while (copy_i > copy_until_i)
+					{
+						this->_data[copy_i] = this->_data[last_elem_i];
+						this->_data[last_elem_i] = -1;
+						copy_i--;
+						last_elem_i--;
+					}
+
+					this->_data[position_i] = val;
+				
+					this->_size = this->size() + n;
+					return iterator(&this->_data[position_i]);
+				}
+			}
+		
+			template <class InputIterator>
+			void insert(iterator position, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last)
+			{
+				size_type n = 0;
+				
+				InputIterator first_copy = first;
+				while (first_copy != last)
+				{
+					first_copy++;
+					n++;
+				}
+
 				size_type new_size = this->size() + n;
 				size_type position_i = position - this->begin();
 
@@ -384,8 +457,13 @@ namespace ft
 						data_i++;
 					}
 
-					new_data[position_i] = val;
-					
+					size_type copy_until_position = position_i + n;
+					while (position_i < copy_until_position)
+					{
+						new_data[position_i] = *first;
+						first++;
+						position_i++;
+					}
 
 					for (int i=0; i < this->size(); i++)
 						this->_allocator.destroy(&this->_data[i]);
@@ -393,13 +471,13 @@ namespace ft
 					this->_allocator.deallocate(this->_data, this->capacity());
 					this->_data = new_data;
 					this->_size = new_size;
-					return iterator(&this->_data[position_i]);
-
+					this->_capacity = new_capacity;
 				}
 				else
 				{
-					size_type last_elem_i = this->end() - this->begin() - 1;
-					size_type copy_until_i = last_elem_i;
+
+					size_type last_elem_i = this->end() - this->begin();
+					size_type copy_until_i = last_elem_i - 1;
 					size_type copy_i = last_elem_i + n;
 
 					while (copy_i > copy_until_i)
@@ -410,20 +488,15 @@ namespace ft
 						last_elem_i--;
 					}
 
-					
-					this->_data[position_i] = val;
-					
+					for (size_type i=0; i < n; i++)
+					{
+						this->_data[position_i] = *first;
+						*first++;
+						position_i++;
+					}
 
 					this->_size = this->size() + n;
-					return iterator(&this->_data[position_i]);
-
 				}
-			}
-		
-			template <class InputIterator>
-			void insert(iterator position, InputIterator first, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type last)
-			{
-
 			}
 
 			// TODO:
@@ -432,11 +505,11 @@ namespace ft
 			// TODO:
 			// swap
 
-			// TODO:
 			void clear()
 			{
 				for (size_type i=0; i < this->_size; i++)
 					this->_allocator.destroy(&this->_data[i]);
+				this->_size = 0;
 			}
 
 			// TODO:
@@ -457,10 +530,16 @@ namespace ft
 
 			size_type get_new_capacity_size_for(size_type n)
 			{
+				if (this->_capacity <= 1)
+					return n;
+
 				size_type new_capacity = this->_capacity;
-				
+
 				while (new_capacity < n)
 					new_capacity *= 2;
+
+				if (new_capacity <= this->_capacity)
+					std::cout << "--- WTF ERROR! ---" << std::endl;
 
 				return new_capacity;
 			}
