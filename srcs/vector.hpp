@@ -303,200 +303,172 @@ namespace ft
 		
 			void insert(iterator position, size_type n, const value_type &val)
 			{
-
 				size_type new_size = this->size() + n;
 				size_type position_i = position - this->begin();
 
-				if (this->size() + n > this->capacity())
+				if (new_size > this->capacity())
 				{
 					size_type new_capacity = this->get_new_capacity_size_for(new_size);
 					pointer new_data = this->_allocator.allocate(new_capacity);
 
-					size_type data_i = 0;
-					size_type new_data_i = 0;
-					while (data_i < this->size())
+					size_type i = 0;
+					size_type copy_i = 0;
+					while (i < this->size())
 					{
-						if (new_data_i == position_i)
-							new_data_i += n;
-						new_data[new_data_i] = this->_data[data_i];
-						new_data_i++;
-						data_i++;
+						if (i == position_i)
+							copy_i += n;
+
+						new_data[copy_i] = this->_data[i];
+						copy_i++;
+						i++;
 					}
 
-					size_type copy_until_position = position_i + n;
-					while (position_i < copy_until_position)
+					size_type copy_until = position_i + n;
+					while (position_i < copy_until)
 					{
 						new_data[position_i] = val;
 						position_i++;
 					}
-
-					for (int i=0; i < this->size(); i++)
+					
+					for (size_type i=0; i < this->size(); i++)
 						this->_allocator.destroy(&this->_data[i]);
+					this->_allocator.deallocate(this->_data, this->_capacity);
 
-					this->_allocator.deallocate(this->_data, this->capacity());
 					this->_data = new_data;
-					this->_size = new_size;
 					this->_capacity = new_capacity;
-
 				}
 				else
 				{
-					size_type last_elem_i = this->end() - this->begin();
-					size_type copy_until_i = last_elem_i;
-					size_type copy_i = last_elem_i + n - 1;
-
-					while (copy_i > copy_until_i)
+					size_type copy_i = new_size - 1;
+					size_type i = this->size() - 1;
+					while (i >= position_i)
 					{
-						this->_data[copy_i] = this->_data[last_elem_i];
-						this->_data[last_elem_i] = -1;
+						this->_data[copy_i] = this->_data[i];
+						i--;
 						copy_i--;
-						last_elem_i--;
 					}
 
-					for (size_type i=0; i < n; i++)
+					size_type copy_until = position_i + n;
+					while (position_i < copy_until)
 					{
 						this->_data[position_i] = val;
 						position_i++;
 					}
-
-					this->_size = this->size() + n;
 				}
+
+				this->_size = new_size;
 			}
 
 			iterator insert (iterator position, const value_type& val)
 			{
-
-				size_type n = 1;
-				size_type new_size = this->size() + n;
+				size_type new_size = this->size() + 1;
 				size_type position_i = position - this->begin();
 
-				if (this->size() + n > this->capacity())
+				if (new_size > this->capacity())
 				{
 					size_type new_capacity = this->get_new_capacity_size_for(new_size);
-
 					pointer new_data = this->_allocator.allocate(new_capacity);
-					this->_capacity = new_capacity;
 
-					size_type data_i = 0;
-					size_type new_data_i = 0;
-					
-					while (data_i < this->size())
+					size_type i = 0;
+					size_type copy_i = 0;
+					while (i < this->size())
 					{
-						if (new_data_i == position_i)
-							new_data_i += n;
-						new_data[new_data_i] = this->_data[data_i];
-						new_data_i++;
-						data_i++;
+						if (i == position_i)
+							copy_i++;
+
+						new_data[copy_i] = this->_data[i];
+						i++;
+						copy_i++;
 					}
 
 					new_data[position_i] = val;
 
-					for (int i=0; i < this->size(); i++)
+					for (size_type i=0; i < this->size(); i++)
 						this->_allocator.destroy(&this->_data[i]);
+					this->_allocator.deallocate(this->_data, this->_capacity);
 
-					this->_allocator.deallocate(this->_data, this->capacity());
 					this->_data = new_data;
-					this->_size = new_size;
 					this->_capacity = new_capacity;
-
-					return iterator(&this->_data[position_i]);
 				}
 				else
 				{
-					size_type last_elem_i = this->end() - this->begin();
-					size_type copy_until_i = last_elem_i;
-					size_type copy_i = last_elem_i + n;
-
-					std::cout << "copy_until_i: " << copy_until_i << std::endl; 
-					std::cout << "last_elem_i: " << last_elem_i << std::endl;   
-					std::cout << "copy_i: " << copy_i << std::endl;				
-
-					while (copy_i > copy_until_i)
-					{
-						this->_data[copy_i] = this->_data[last_elem_i];
-						this->_data[last_elem_i] = -1;
-						copy_i--;
-						last_elem_i--;
-					}
+					for (size_type i = new_size; i > position_i; i--)
+						this->_data[i] = this->_data[i - 1];
 
 					this->_data[position_i] = val;
-				
-					this->_size = this->size() + n;
-					return iterator(&this->_data[position_i]);
 				}
+
+				this->_size = new_size;
+
+				return iterator(&this->_data[position_i]);
 			}
 		
 			template <class InputIterator>
 			void insert(iterator position, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last)
 			{
+				InputIterator tmp_first = first;
 				size_type n = 0;
-				
-				InputIterator first_copy = first;
-				while (first_copy != last)
+				while (tmp_first != last)
 				{
-					first_copy++;
 					n++;
+					tmp_first++;
 				}
 
 				size_type new_size = this->size() + n;
 				size_type position_i = position - this->begin();
 
-				if (this->size() + n > this->capacity())
+				if (new_size > this->capacity())
 				{
 					size_type new_capacity = this->get_new_capacity_size_for(new_size);
 					pointer new_data = this->_allocator.allocate(new_capacity);
 
-					size_type data_i = 0;
-					size_type new_data_i = 0;
-					while (data_i < this->size())
+					size_type i = 0;
+					size_type copy_i = 0;
+					while (i < this->size())
 					{
-						if (new_data_i == position_i)
-							new_data_i += n;
-						new_data[new_data_i] = this->_data[data_i];
-						new_data_i++;
-						data_i++;
+						if (i == position_i)
+							copy_i += n;
+
+						new_data[copy_i] = this->_data[i];
+						copy_i++;
+						i++;
 					}
 
-					size_type copy_until_position = position_i + n;
-					while (position_i < copy_until_position)
+					
+					while (first != last)
 					{
 						new_data[position_i] = *first;
-						first++;
 						position_i++;
+						first++;
 					}
 
-					for (int i=0; i < this->size(); i++)
+					for (size_type i=0; i < this->size(); i++)
 						this->_allocator.destroy(&this->_data[i]);
+					this->_allocator.deallocate(this->_data, this->_capacity);
 
-					this->_allocator.deallocate(this->_data, this->capacity());
 					this->_data = new_data;
-					this->_size = new_size;
 					this->_capacity = new_capacity;
 				}
 				else
 				{
-
-					size_type last_elem_i = this->end() - this->begin();
-					size_type copy_until_i = last_elem_i - 1;
-					size_type copy_i = last_elem_i + n;
-
-					while (copy_i > copy_until_i)
+					size_type copy_i = new_size - 1;
+					size_type i = this->size() - 1;
+					while (i >= position_i)
 					{
-						this->_data[copy_i] = this->_data[last_elem_i];
-						this->_data[last_elem_i] = -1;
+						this->_data[copy_i] = this->_data[i];
+						i--;
 						copy_i--;
-						last_elem_i--;
 					}
-
-					for (size_type i=0; i < n; i++)
+					
+					while (first != last)
 					{
 						this->_data[position_i] = *first;
-						*first++;
+						first++;
 						position_i++;
-					}
-
-					this->_size = this->size() + n;
+					}	
 				}
+
+				this->_size = new_size;
 			}
 
 			// TODO:
