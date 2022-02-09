@@ -33,6 +33,7 @@ namespace ft
 				this->_size = 0;
 				this->_capacity = 0;
 				this->_allocator = alloc;
+				this->_data = NULL;
 			}
 
 			explicit vector(size_type count, const T &value = T(), const Allocator &alloc = Allocator())
@@ -91,6 +92,9 @@ namespace ft
 
 			~vector()
 			{
+				if (this->_data == NULL)
+					return ;
+
 				for (int i; i < this->size(); i++)
 					this->_allocator.destroy(&this->_data[i]);
 				this->_allocator.deallocate(this->_data, this->capacity());
@@ -208,7 +212,9 @@ namespace ft
 				
 				for (size_type i=0; i < this->_size; i++)
 					this->_allocator.destroy(&this->_data[i]);
-				this->_allocator.deallocate(this->_data, this->_capacity);
+
+				if (this->_data != NULL)
+					this->_allocator.deallocate(this->_data, this->_capacity);
 
 				this->_data = tmp;
 				this->_capacity = n;
@@ -265,28 +271,55 @@ namespace ft
 			template <class InputIterator>
 			void assign(typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last)
 			{
-				InputIterator tmp_first = first;
-				size_t size = 0;
+				this->clear();
 
-				while (tmp_first++ != last)
-					size++;	
-
-				if (size > this->capacity())		
-					this->reserve(size);
+				size_type n = count_elements(first, last);
 				
-				size_type i=0;
-				while (first != last)
+				if (n > this->capacity())
 				{
-					this->_data[i] = *first;
-					first++;
-					i++;
+					this->reserve(n);
+
+					for (size_type i=0; i < n; i++)
+					{
+						this->_data[i] = *first;
+						first++;
+					}
+
+					this->_capacity = n;
 				}
-				this->_size = size;
+				else
+				{
+					for (size_type i=0; i < n; i++)
+					{
+						this->_data[i] = *first;
+						first++;
+					}
+				}
+				
+				this->_size = n;
 			}
 
 			void assign (size_type n, const value_type& val)
 			{
-				
+
+				this->clear();
+
+				if (n > this->capacity())
+				{
+					this->reserve(n);
+
+					for (size_type i=0; i < n; i++)
+						this->_data[i] = val;
+
+					this->_capacity = n;
+				}
+				else
+				{
+					for (size_type i=0; i < n; i++)
+						this->_data[i] = val;
+				}
+
+				this->_size = n;
 			}
 
 			// TODO:
@@ -297,6 +330,7 @@ namespace ft
 			// TODO:
 			void pop_back()
 			{
+
 			}
 
 			// TODO: Lanzar excepcion si no se puede alocar la nueva cantidad
@@ -406,14 +440,7 @@ namespace ft
 			template <class InputIterator>
 			void insert(iterator position, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last)
 			{
-				InputIterator tmp_first = first;
-				size_type n = 0;
-				while (tmp_first != last)
-				{
-					n++;
-					tmp_first++;
-				}
-
+				size_type n = this->count_elements(first, last);
 				size_type new_size = this->size() + n;
 				size_type position_i = position - this->begin();
 
@@ -472,13 +499,17 @@ namespace ft
 			}
 
 			// TODO:
-			// erase
+			iterator erase (iterator position);
+			iterator erase (iterator first, iterator last);
 
 			// TODO:
 			// swap
 
 			void clear()
 			{
+				if (this->_data == NULL)
+					return ;
+
 				for (size_type i=0; i < this->_size; i++)
 					this->_allocator.destroy(&this->_data[i]);
 				this->_size = 0;
@@ -510,10 +541,21 @@ namespace ft
 				while (new_capacity < n)
 					new_capacity *= 2;
 
-				if (new_capacity <= this->_capacity)
-					std::cout << "--- WTF ERROR! ---" << std::endl;
-
 				return new_capacity;
 			}
+
+			template<class InputIterator>
+			size_type count_elements(InputIterator first, InputIterator last) {
+				size_type n = 0;
+
+				while (first != last)
+				{
+					first++;
+					n++;
+				}
+
+				return n;
+			}
+
 		};
 }
