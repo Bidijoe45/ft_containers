@@ -519,8 +519,20 @@ namespace ft
 				return iterator(&this->_data[first_i]);
 			}
 
-			// TODO:
-			// swap
+			void swap(vector &x)
+			{
+				pointer tmp_data = this->_data;
+				size_type tmp_capacity = this->capacity();
+				size_type tmp_size = this->size();
+
+				this->_data = x._data;
+				this->_size = x.size();
+				this->_capacity = x.capacity();
+
+				x._data = tmp_data;
+				x._size = tmp_size;
+				x._capacity = tmp_capacity;
+			}
 
 			void clear()
 			{
