@@ -79,15 +79,14 @@ namespace ft
 				if (this == &other)
 					return ;
 
-				this->_allocator = other.get_allocator();
 				this->_size = other.size();
 				this->_capacity = other.capacity();
-				this->_data = this->_allocator.allocate(other.capacity());
+				this->_allocator = other.get_allocator();
 
-				for (size_type i=0; i < other.size(); i++)
-				{
-					this->_data[i] = other._data[i];
-				}
+				this->_data = this->_allocator.allocate(this->capacity());
+
+				for (size_type i=0; i < this->size(); i++)
+					this->_data[i] = other[i];
 			}
 
 			~vector()
@@ -106,23 +105,7 @@ namespace ft
 				if (this == &other)
 					return *this;
 
-				this->reserve(other.size());
-				this->_size = other.size();
-				this->_allocator = other.get_allocator();
-
-				iterator it = other.begin();
-				iterator ite = other.end();
-
-				iterator this_it = this->begin();
-				iterator this_ite = this->end();
-
-				while (it != ite)
-				{
-					*this_it = *it;	
-
-					it++;
-					this_it++;
-				}
+				this->assign(other.begin(), other.end());
 
 				return *this;
 			}
@@ -162,30 +145,25 @@ namespace ft
 
 			void resize(size_type n, value_type val = value_type())
 			{
-				if (n <= this->_size)
+				
+				if (n < this->size())
 				{
-					size_type rest = this->_size - (this->_size - n) - 1;
-					for (size_type i = this->_size - 1; i > rest; i--)
+					for (size_type i = this->size(); i > n; i--) {
 						this->_allocator.destroy(&this->_data[i]);
-
+					}
 					this->_size = n;
+
 					return ;
 				}
-		
-				if (n > this->_capacity)
-				{
-					size_type new_capacity = this->get_new_capacity_size_for(n);
-					
-					this->reserve(new_capacity);
-					for (size_type i=this->_size; i < n; i++)
-						this->_allocator.construct(&this->_data[i], val);
 
-				}
-				else
-				{
-					for (size_type i = this->_size; i < n; i++)
-						this->_allocator.construct(&this->_data[i], val);
-				}
+
+				if (n > this->capacity())
+					this->reserve(n);
+
+				for (size_type i = this->size(); i < n; i++)
+					this->_data[i] = val;
+
+				this->_size = n;
 				
 			}
 
@@ -196,7 +174,7 @@ namespace ft
 
 			bool empty() const
 			{
-				return this->_size;
+				return !this->_size;
 			}
 
 			//FIXME: Al reservar el iterator debe ponerse en el ultimo elemento, pero no lo hace
@@ -322,15 +300,16 @@ namespace ft
 				this->_size = n;
 			}
 
-			// TODO:
 			void push_back(const value_type &val)
 			{
+				this->insert(this->end(), val);
 			}
 
 			// TODO:
 			void pop_back()
 			{
-
+				this->_allocator.destroy(&this->_data[this->size() - 1]);
+				this->_size = this->size() - 1;
 			}
 
 			// TODO: Lanzar excepcion si no se puede alocar la nueva cantidad
@@ -461,7 +440,6 @@ namespace ft
 						i++;
 					}
 
-					
 					while (first != last)
 					{
 						new_data[position_i] = *first;
@@ -499,8 +477,47 @@ namespace ft
 			}
 
 			// TODO:
-			iterator erase (iterator position);
-			iterator erase (iterator first, iterator last);
+			iterator erase(iterator position)
+			{
+				size_type position_i = position - this->begin();
+
+				this->_allocator.destroy(&this->_data[position_i]);
+
+				size_type i = position_i;
+				while (i < this->size())
+				{
+					this->_data[i] = this->_data[i + 1];
+					i++;
+				}
+				
+				this->_size = this->size() - 1;
+
+				return iterator(&this->_data[position_i]);
+			}
+
+			iterator erase(iterator first, iterator last)
+			{
+				size_type n = last - first;
+				size_type first_i = first - this->begin();
+				size_type elements_after = this->end() - last;
+
+				for (size_type i = first_i; i < n; i++)
+					this->_allocator.destroy(&this->_data[i]);
+				
+				size_type copy_i = first_i + n;
+				size_type i = first_i;
+
+				while (i <= elements_after)
+				{
+					this->_data[i] = this->_data[copy_i];
+					i++;
+					copy_i++;
+				}
+
+				this->_size = this->size() - n;
+
+				return iterator(&this->_data[first_i]);
+			}
 
 			// TODO:
 			// swap
