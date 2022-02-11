@@ -25,6 +25,7 @@ namespace ft
 			typedef typename Allocator::const_pointer const_pointer;
 			typedef ft::random_access_iterator<value_type> iterator;
 			typedef ft::random_access_iterator<const value_type> const_iterator;
+			typedef ft::reverse_iterator<ft::random_access_iterator<value_type> > reverse_iterator;
 
 			/* CONSTRUCTORS */
 
@@ -129,6 +130,16 @@ namespace ft
 			iterator end()
 			{
 				return iterator(&this->_data[this->_size]);
+			}
+
+			reverse_iterator rbegin()
+			{
+				return reverse_iterator(iterator(&this->_data[this->_size - 1]));
+			}
+
+			reverse_iterator rend()
+			{
+				return reverse_iterator(iterator(&this->_data[-1]));
 			}
 
 			/* CAPACITY */
