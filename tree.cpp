@@ -136,35 +136,74 @@ class RedBalckTree {
 
 		void fixNode(Node *node)
 		{
-			Node *parent = node->getParentNode();
-			Node *grandparent = parent->getParentNode();
+			Node *currentNode = node;
 
-			if (parent == parent->getParentNode()->getLeftNode())
+			while (currentNode->getParentNode()->getColor() == RED)
 			{
-				Node *parent_sibling = parent->getParentNode()->getRightNode();
+				Node *parent = currentNode->getParentNode();
+				Node *grandparent = parent->getParentNode();
+				Node *parent_sibling;
 
-				if (parent_sibling == NULL || parent_sibling->getColor() == BLACK) {
-					this->rotateRight(node);
-				}
-				
-				parent->setColor(BLACK);
-				parent_sibling->setColor(BLACK);
-
-				if (grandparent->getParentNode() == NULL)
-					grandparent->setColor(RED);
-
-			}
-			else
-			{	
-				Node *parent_sibling = parent->getParentNode()->getLeftNode();
-
-				if (parent_sibling == NULL || parent_sibling->getColor() == BLACK)
+				if (parent == grandparent->getRightNode())
 				{
-					this->rotateLeft(node);
+					parent_sibling = grandparent->getRightNode();
+
+					std::cout << "llega 111" << std::endl;
+
+					if (parent_sibling != NULL && parent_sibling->getColor() == RED)
+					{
+						parent->setColor(BLACK);
+						parent_sibling->setColor(BLACK);
+						grandparent->setColor(RED);
+						currentNode = grandparent;
+					}
+					else
+					{
+						if (currentNode == parent->getLeftNode())
+						{
+							currentNode = parent;
+							this->rotateRight(currentNode);
+						}
+						parent->setColor(BLACK);
+						grandparent->setColor(RED);
+						this->rotateLeft(grandparent);
+					}
+					std::cout << "llega 121" << std::endl;
+
 				}
+				else
+				{
+					parent_sibling = grandparent->getLeftNode();
 
+					std::cout << "llega 211" << std::endl;
+					if (parent_sibling != NULL && parent_sibling->getColor() == RED)
+					{
+						grandparent->setColor(RED);
+						parent->setColor(BLACK);
+						parent_sibling->setColor(BLACK);
+						currentNode = grandparent;
+					}
+					else
+					{
+						if (currentNode == parent->getRightNode())
+						{
+							currentNode = parent;
+							this->rotateLeft(currentNode);
+						}
+						parent->setColor(BLACK);
+						grandparent->setColor(RED);
+						this->rotateRight(grandparent);
+					}
+					std::cout << "llega 221" << std::endl;
+
+
+					if (currentNode == this->_root)
+						break ;
+				}
+			
+				this->_root->setColor(BLACK);
 			}
-
+		
 		}
 
 		void insert(Node *node)
@@ -196,8 +235,9 @@ class RedBalckTree {
 			else
 				actual_node->setRightNode(node);
 
-			if (node->getParentNode()->getColor == RED)
-				this->fixNode(node);
+			if (node->getParentNode() != NULL)
+				if (node->getParentNode()->getColor() == RED)
+					this->fixNode(node);
 		}
 
 	private:
@@ -231,10 +271,11 @@ int main() {
 
 	typedef RedBalckTreeNode<int> Node;
 
+	tree.insert(new Node(5));
 	tree.insert(new Node(10));
-	tree.insert(new Node(7));
-	tree.insert(new Node(42));
-	tree.insert(new Node(8));
+	tree.insert(new Node(15));
+	tree.insert(new Node(21));
+	tree.insert(new Node(23));
 
 
 	tree.print();
