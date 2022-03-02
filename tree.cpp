@@ -121,9 +121,10 @@ class RedBalckTree {
 			node->setParentNode(tmp);
 		}
 
-		void fixNode(Node *node)
+		void insertNodeFix(Node *node)
 		{
 			Node *currentNode = node;
+			Node *tmp;
 
 			while(currentNode->getParentNode() != NULL && currentNode->getParentNode()->getColor() == RED)
 			{
@@ -185,7 +186,7 @@ class RedBalckTree {
 		
 		}
 
-		void insert(Node *node)
+		void insertNode(Node *node)
 		{
 			if (this->_root == NULL)
 			{
@@ -215,7 +216,40 @@ class RedBalckTree {
 				actual_node->setRightNode(node);
 
 			if (node->getParentNode() != NULL && node->getParentNode()->getColor() == RED)
-				this->fixNode(node);
+				this->insertNodeFix(node);
+		}
+
+		void deleteNodeFix(Node *node)
+		{
+
+		}
+
+		void deleteNode(Node *node)
+		{
+			Node *current_node = this->_root;
+			Node *leftChild;
+			Node *rightChild;
+			Node *parent;
+
+			while (current_node != NULL && current_node->getValue() != node->getValue())
+			{
+				if (node->getValue() < current_node->getValue())
+					current_node = current_node->getLeftNode();
+				else
+					current_node = current_node->getRightNode();
+			}
+
+			if (current_node == NULL)
+				return ;
+
+			left_child = current_node->getLeftNode();
+			right_child = current_node->getRightNode();
+			parent = current_node->getParentNode();
+
+			if (left_child != NULL && right_child =! NULL)
+			{
+
+			}
 
 		}
 
@@ -250,14 +284,16 @@ int main() {
 
 	typedef RedBalckTreeNode<int> Node;
 
-	tree.insert(new Node(50));
-	tree.insert(new Node(51));
-	tree.insert(new Node(52));
-	tree.insert(new Node(59));
-	tree.insert(new Node(55));
-	tree.insert(new Node(56));
-
+	tree.insertNode(new Node(50));
+	tree.insertNode(new Node(25));
+	tree.insertNode(new Node(60));
+	tree.insertNode(new Node(20));
+	tree.insertNode(new Node(55));
+	tree.insertNode(new Node(40));
+	tree.insertNode(new Node(65));
 
 	tree.print();
+
+	tree.deleteNode(new Node(20));
 
 }
