@@ -123,8 +123,7 @@ class RedBalckTree {
 
 		void fixNode(Node *node)
 		{
-			Node *currentNode = node; // t
-			Node *tmp;
+			Node *currentNode = node;
 
 			while(currentNode->getParentNode() != NULL && currentNode->getParentNode()->getColor() == RED)
 			{
