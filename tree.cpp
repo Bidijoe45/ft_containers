@@ -1,27 +1,22 @@
 #include <iostream>
 #include <vector>
 
-enum RedBlackTreeNodeColor { RED, BLACK };
-
 template<class T>
-class RedBalckTreeNode {
+class TreeNode {
 
 	public:
-		typedef RedBalckTreeNode Node;
-		typedef RedBlackTreeNodeColor Color;
+		typedef TreeNode Node;
 
-		RedBalckTreeNode() {
+		TreeNode() {
 			this->_parent = NULL;
 			this->_left = NULL;
 			this->_right = NULL;
-			this->_color = RED;
 		}
 
-		RedBalckTreeNode(T value) {
+		TreeNode(T value) {
 			this->_parent = NULL;
 			this->_left = NULL;
 			this->_right = NULL;
-			this->_color = RED;
 			this->_value = value;
 		}
 
@@ -29,31 +24,36 @@ class RedBalckTreeNode {
 		Node *getParentNode() { return this->_parent; }
 		Node *getLeftNode() { return this->_left; }
 		Node *getRightNode() { return this->_right; }
-		Color getColor() { return this->_color; }
+
+		Node *getSibling() {
+			if (this->getParentNode() == NULL)
+				return NULL;
+			if (this->getParentNode()->getLeftNode() == this)
+				return this->getParentNode()->getRightNode();
+			else
+				return this->getParentNode()->getLeftNode();
+		}
 
 		void setValue(T value) { this->_value = value; }
 		void setParentNode(Node *node) { this->_parent = node; }
 		void setLeftNode(Node *node) { this->_left = node; }
 		void setRightNode(Node *node) { this->_right = node; }
-		void setColor(Color color) { this->_color = color; }
 
 	private:
 		T _value;
 		Node *_parent;
 		Node *_left;
 		Node *_right;
-		Color _color;
 };
 
 template<class T>
-class RedBalckTree {
+class Tree {
 
 	public:
-		typedef RedBalckTreeNode<T> Node;
+		typedef TreeNode<T> Node;
 		typedef T value_type;
-		typedef RedBlackTreeNodeColor Color;
 
-		RedBalckTree() {
+		Tree() {
 			this->_root = NULL;
 		}
 
@@ -79,118 +79,13 @@ class RedBalckTree {
 				if (actual_node->getRightNode())
 					print_queue.push_back(actual_node->getRightNode());
 				print_queue.erase(print_queue.begin());
-			}
-			
-		}
-
-		void rotateLeft(Node *node)
-		{
-			Node *tmp = node->getRightNode();
-			node->setRightNode(tmp->getLeftNode());
-
-			if (tmp->getLeftNode() != NULL)
-				tmp->getLeftNode()->setParentNode(node);
-			
-			tmp->setParentNode(node->getParentNode());
-			if (node->getParentNode() == NULL)
-				this->_root = tmp;
-			else if (node == node->getParentNode()->getLeftNode())
-				node->getParentNode()->setLeftNode(tmp);
-			else
-				node->getParentNode()->setRightNode(tmp);
-			tmp->setLeftNode(node);
-			node->setParentNode(tmp);
-		}
-		
-		void rotateRight(Node *node)
-		{
-			Node *tmp = node->getLeftNode();
-			node->setLeftNode(tmp->getRightNode());
-
-			if (tmp->getRightNode() != NULL)
-				tmp->getRightNode()->setParentNode(node);
-			
-			tmp->setParentNode(node->getParentNode());
-			if (node->getParentNode() == NULL)
-				this->_root = tmp;
-			else if (node == node->getParentNode()->getRightNode())
-				node->getParentNode()->setRightNode(tmp);
-			else
-				node->getParentNode()->setLeftNode(tmp);
-			tmp->setRightNode(node);
-			node->setParentNode(tmp);
-		}
-
-		void insertNodeFix(Node *node)
-		{
-			Node *currentNode = node;
-			Node *tmp;
-
-			while(currentNode->getParentNode() != NULL && currentNode->getParentNode()->getColor() == RED)
-			{
-				Node *grandparent = currentNode->getParentNode()->getParentNode();
-
-				if(grandparent->getLeftNode() == currentNode->getParentNode())
-				{
-					if(grandparent->getRightNode() != NULL)
-					{
-						tmp = grandparent->getRightNode();
-						if(tmp->getColor() == RED)
-						{
-							node->getParentNode()->setColor(BLACK);
-							tmp->setColor(BLACK);
-							grandparent->setColor(RED);
-							currentNode = grandparent;
-						}
-					}
-					else
-					{
-						if (currentNode->getParentNode()->getRightNode() == currentNode)
-						{
-							currentNode = currentNode->getParentNode();
-							this->rotateLeft(currentNode);
-						}
-						currentNode->getParentNode()->setColor(BLACK);
-						grandparent->setColor(RED);
-						this->rotateRight(grandparent);
-					}
-				}
-				else
-				{
-					if(grandparent->getLeftNode() != NULL)
-					{
-						tmp = grandparent->getLeftNode();
-						if (tmp->getColor() == RED)
-						{
-							currentNode->getParentNode()->setColor(BLACK);
-							tmp->setColor(BLACK);
-							grandparent->setColor(RED);
-							currentNode = grandparent;
-						}
-					}
-					else
-					{
-						if (currentNode->getParentNode()->getLeftNode() == currentNode)
-						{
-							currentNode = currentNode->getParentNode();
-							this->rotateRight(currentNode);
-						}
-						currentNode->getParentNode()->setColor(BLACK);
-						grandparent->setColor(RED);
-						this->rotateLeft(grandparent);
-					}
-				}
-
-				this->_root->setColor(BLACK);
-			}
-		
+			}	
 		}
 
 		void insertNode(Node *node)
 		{
 			if (this->_root == NULL)
 			{
-				node->setColor(BLACK);
 				this->_root = node;
 
 				return;
@@ -215,25 +110,32 @@ class RedBalckTree {
 			else
 				actual_node->setRightNode(node);
 
-			if (node->getParentNode() != NULL && node->getParentNode()->getColor() == RED)
-				this->insertNodeFix(node);
 		}
 
-		void deleteNodeFix(Node *node)
+		Node *getMinimumOfRightSubtree(Node *node)
 		{
+			if (node->getRightNode() == NULL)
+				return NULL;
 
+			node = node->getRightNode();
+			while (node->getLeftNode() != NULL)
+				node = node->getLeftNode();
+
+			return node;
 		}
 
-		void deleteNode(Node *node)
+
+		void deleteNode(value_type value)
 		{
 			Node *current_node = this->_root;
-			Node *leftChild;
-			Node *rightChild;
+			Node *left_child;
+			Node *right_child;
 			Node *parent;
+			Node *minimumRight;
 
-			while (current_node != NULL && current_node->getValue() != node->getValue())
+			while (current_node != NULL && current_node->getValue() != value)
 			{
-				if (node->getValue() < current_node->getValue())
+				if (value < current_node->getValue())
 					current_node = current_node->getLeftNode();
 				else
 					current_node = current_node->getRightNode();
@@ -246,11 +148,62 @@ class RedBalckTree {
 			right_child = current_node->getRightNode();
 			parent = current_node->getParentNode();
 
-			if (left_child != NULL && right_child =! NULL)
+			if (left_child == NULL && right_child == NULL)
 			{
+				if (current_node == this->_root)
+					this->_root = NULL;
+				else if (parent->getLeftNode() == current_node)
+					parent->setLeftNode(NULL);
+				else
+					parent->setRightNode(NULL);
+			}
+			else if (left_child != NULL && right_child == NULL)
+			{
+				if (current_node == this->_root)
+					this->_root = left_child;
+				else if (parent->getLeftNode() == current_node)
+					parent->setLeftNode(left_child);
+				else
+					parent->setRightNode(left_child);
+				left_child->setParentNode(parent);
+			}
+			else if (left_child == NULL && right_child != NULL)
+			{
+				if (current_node == this->_root)
+					this->_root = right_child;
+				else if (parent->getLeftNode() == current_node)
+					parent->setLeftNode(right_child);
+				else
+					parent->setRightNode(right_child);
+				right_child->setParentNode(parent);
+			}
+			else
+			{
+				minimumRight = this->getMinimumOfRightSubtree(current_node);
+				
+				if (right_child != minimumRight) {
+					minimumRight->setRightNode(right_child);
+					right_child->setParentNode(minimumRight);
 
+					if (minimumRight->getParentNode()->getLeftNode() == minimumRight)
+						minimumRight->getParentNode()->setLeftNode(NULL);
+					else
+						minimumRight->getParentNode()->setRightNode(NULL);
+				}
+				minimumRight->setLeftNode(left_child);
+				minimumRight->setParentNode(parent);
+				
+				left_child->setParentNode(minimumRight);
+
+				if (parent == NULL)
+					this->_root = minimumRight;
+				else if (parent->getLeftNode() == current_node)
+					parent->setLeftNode(minimumRight);
+				else
+					parent->setRightNode(minimumRight);
 			}
 
+			delete current_node;
 		}
 
 	private:
@@ -258,11 +211,6 @@ class RedBalckTree {
 
 		void printNode(Node &node)
 		{
-			if (node.getColor() == BLACK)
-				std::cout << "\x1b[44m";
-			if (node.getColor() == RED)
-				std::cout << "\x1b[41m";
-
 			std::cout << "--- NODE ---" << std::endl;
 			std::cout << "\x1b[0m";
 
@@ -280,10 +228,13 @@ class RedBalckTree {
 
 int main() {
 
-	RedBalckTree<int> tree;
+	Tree<int> tree;
 
-	typedef RedBalckTreeNode<int> Node;
+	typedef TreeNode<int> Node;
 
+
+	//TREE 1
+	/*
 	tree.insertNode(new Node(50));
 	tree.insertNode(new Node(25));
 	tree.insertNode(new Node(60));
@@ -291,9 +242,31 @@ int main() {
 	tree.insertNode(new Node(55));
 	tree.insertNode(new Node(40));
 	tree.insertNode(new Node(65));
+	tree.insertNode(new Node(10));
+	tree.insertNode(new Node(22));
+	tree.insertNode(new Node(30));
+	tree.insertNode(new Node(45));
+
+	tree.deleteNode(50);
 
 	tree.print();
 
-	tree.deleteNode(new Node(20));
+	*/
+
+	//TREE 2
+	tree.insertNode(new Node(65));
+	tree.insertNode(new Node(50));
+	tree.insertNode(new Node(70));
+	tree.insertNode(new Node(20));
+	tree.insertNode(new Node(55));
+	tree.insertNode(new Node(68));
+	tree.insertNode(new Node(80));
+	tree.insertNode(new Node(90));
+	tree.insertNode(new Node(15));
+
+
+	tree.deleteNode(80);
+
+	tree.print();
 
 }
