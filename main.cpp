@@ -3,9 +3,11 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <map>
 #include "./srcs/vector.hpp"
 #include "./srcs/utils/is_integral_traits.hpp"
 #include "./srcs/utils/iterator_traits.hpp"
+#include "./srcs/map.hpp"
 
 //ALLOCATOR USE TEST
 
@@ -99,30 +101,47 @@ void print_vector_content(T &vec)
 	std::cout << "-----------------" << std::endl;
 }
 
+template<class T>
+void print_map_content(T &map)
+{
+	typename T::iterator it = map.begin();
+	typename T::iterator ite = map.end();
+
+	std::cout << "---- CONTENT ----" << std::endl;
+	while (it != ite) {
+		std::cout << "[" << (*it).first << "] => " << (*it).second << std::endl;
+		it++;
+	}
+	std::cout << "-----------------" << std::endl;
+}
+
 //Vector TEST
 int main ()
 {
-	ft::vector<int> ft_vec1(4);
+	
+	ft::map<int, int> map;
 
-	ft_vec1[0] = 1;
-	ft_vec1[1] = 2;
-	ft_vec1[2] = 3;
-	ft_vec1[3] = 4;
+	map.insert(ft::make_pair(1, 1));
 
-	ft::vector<int> ft_vec2(4);
+	map.printTree();
 
-	ft_vec2[0] = -1;
-	ft_vec2[1] = -2;
-	ft_vec2[2] = -3;
-	ft_vec2[3] = -4;
+	//ft::map<int, int>::iterator it = map.begin();
 
-	print_vector_stats(ft_vec1);
+	//std::cout << (*it).first << std::endl;
 
-	ft_vec1.insert(ft_vec1.begin() + 2, ft_vec2.begin() + 1, ft_vec2.begin() + 3);
+	/*
+	std::map<int, int> std_map;
 
+	std_map.insert(std::make_pair(1, 100));
+	std_map.insert(std::make_pair(2, 20));
+	std_map.insert(std::make_pair(3, 300));
+	std_map.insert(std::make_pair(4, 4));
 
-	print_vector_stats(ft_vec1);
-	print_vector_content(ft_vec1);
+	std::map<int, int>::iterator std_it = std_map.begin();
+	std::map<int, int>::iterator std_ite = std_map.end();
+
+	print_map_content(std_map);
+	*/
 
 	return 0;
 }
