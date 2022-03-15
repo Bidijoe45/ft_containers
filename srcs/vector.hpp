@@ -67,12 +67,15 @@ namespace ft
 
 				iterator it = this->begin();
 				iterator ite = this->end();
+				size_t i = 0;
 
 				while (it != ite)
 				{
-					*it = *first;
+					//*it = *first;
+					this->_allocator.construct(&this->_data[i], *first);
 					it++;
 					first++;
+					i++;
 				}
 
 			}

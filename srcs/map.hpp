@@ -11,7 +11,6 @@ template<class Key, class T, class Compare = std::less<Key>, class Allocator = s
 class map
 {
 	public:
-
 		typedef Key key_type;
 		typedef T mapped_type;
 		typedef ft::pair<const key_type, mapped_type> value_type;
@@ -21,7 +20,7 @@ class map
 		typedef typename allocator_type::const_reference const_reference;
 		typedef typename allocator_type::pointer pointer;
 		typedef typename allocator_type::const_pointer const_pointer;
-		typedef ft::tree_iterator<Node<value_type>, value_type, Compare> iterator;
+		typedef ft::tree_iterator<Node<value_type>, Compare> iterator;
 		//typedef ft::tree_iterator<const value_type> const_iterator;
 		//typedef ft::reverse_iterator<ft::tree_iterator<T> > reverse_iterator;
 		//typedef ft::reverse_iterator<ft::tree_iterator<const T> > const_reverse_iterator;
@@ -42,7 +41,7 @@ class map
   					typedef value_type second_argument_type;
 					bool operator() (const value_type& x, const value_type& y) const {
 						return (comp(x.first, y.first));
-					}
+					} 
 			};
 
 		/* CONSTRUCTORS */
@@ -117,7 +116,7 @@ class map
 
 		/* MODIFIERS */
 		//TODO:
-		ft::pair<iterator,bool> insert (const value_type& val) {
+		ft::pair<iterator,bool> insert(const value_type& val) {
 			return data_.insert(val);
 		}
 
@@ -181,7 +180,7 @@ class map
 		}
 
 	private:
-		RedBlackTree<value_type, Compare> data_;
+		RedBlackTree<value_type, Node<value_type>, Compare> data_;
 		size_type size_;
 		allocator_type allocator_;
 

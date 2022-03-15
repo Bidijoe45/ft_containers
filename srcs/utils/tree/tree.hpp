@@ -1,5 +1,10 @@
+#pragma once
 #include <cstddef>
 #include <iostream>
+
+#include <utility>
+
+#include "./tree_iterator.hpp"
 
 namespace ft
 {
@@ -13,25 +18,32 @@ enum NodeColor
 template <class T>
 struct Node
 {
-	T data;
+	typedef T value_type;
+
+	value_type data;
 	Node *parent;
 	Node *left;
 	Node *right;
 	NodeColor color;
+	bool empty;
 
-	Node() : data() { }
+	Node() : data(), empty(true) { }
 
-	Node(T &data) : data(data) { }
+	Node(value_type data) : data(data), empty(false) { }
+
+	bool isEmpty() const {
+		return empty;
+	}
 
 };
 
-template <class T, class Compare, class Allocator = std::allocator<Node<T> > >
+template <class T, class Node, class Compare, class Allocator = std::allocator<Node> >
 class RedBlackTree
 {
 
 public:
 	typedef T value_type;
-	typedef Node<T> Node;
+	typedef ft::tree_iterator<Node, Compare> iterator;
 
 	RedBlackTree() : allocator_(Allocator())
 	{
@@ -117,11 +129,11 @@ public:
 		x->parent = y;
 	}
 
-	ft::pair<Node *, bool> insert(const value_type &data)
+	std::pair<iterator, bool> insert(const value_type &data)
 	{
 		Node *node = this->allocator_.allocate(1);
+		this->allocator_.construct(node, Node(data));
 		node->parent = NULL;
-		this->allocator_.construct(&data, data);
 		node->left = emptyNode_;
 		node->right = emptyNode_;
 		node->color = RED;
@@ -131,7 +143,7 @@ public:
 
 		while (x != emptyNode_) {
 			y = x;
-			if (node->data < x->data) {
+			if (node->data.first < x->data.first) {
 				x = x->left;
 			} else {
 				x = x->right;
@@ -142,7 +154,7 @@ public:
 		if (y == NULL) {
 			root_ = node;
 		}
-		else if (node->data < y->data) {
+		else if (node->data.first < y->data.first) {
 			y->left = node;
 		}
 		else {
@@ -151,15 +163,15 @@ public:
 
 		if (node->parent == NULL) {
 			node->color = BLACK;
-			return;
+			return std::make_pair(iterator(node), true);
 		}
 
 		if (node->parent->parent == NULL) {
-			return;
+			return std::make_pair(iterator(node), true);
 		}
 
 		insertFix(node);
-		return make_pair<node, true>;
+		return std::make_pair(iterator(node), true);
 	}
 
 	void deleteNode(int data)

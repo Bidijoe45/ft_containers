@@ -5,11 +5,13 @@
 #include <string>
 #include <map>
 #include "./srcs/vector.hpp"
+#include "./srcs/utils/tree/tree.hpp"
 #include "./srcs/utils/is_integral_traits.hpp"
 #include "./srcs/utils/iterator_traits.hpp"
 #include "./srcs/map.hpp"
 
 //ALLOCATOR USE TEST
+/*
 
 class Person {
 	private:
@@ -54,7 +56,6 @@ std::ostream& operator<<(std::ostream &os, const Person &p)
 	return os;
 }
 
-/*
 int main()
 {
 	srand(time(NULL));
@@ -77,6 +78,7 @@ int main()
 	return 0;
 }
 */
+
 template<class T>
 void print_vector_stats(T &vec)
 {
@@ -116,36 +118,39 @@ void print_map_content(T &map)
 }
 
 //Vector TEST
+
 int main ()
 {
-	
-	ft::map<int, int> map;
+	typedef std::pair<int, int> value_type;
+	typedef ft::Node<value_type> node;
+	typedef std::less<value_type> compare;
+	typedef ft::tree_iterator<node, compare> iterator;
 
-	map.insert(ft::make_pair(1, 1));
 
-	map.printTree();
+	ft::RedBlackTree<value_type, node, compare> tree;
 
-	//ft::map<int, int>::iterator it = map.begin();
+	std::pair<iterator, bool> insert_ret = tree.insert(std::make_pair<const int, int>(1, 1));
 
-	//std::cout << (*it).first << std::endl;
+	tree.insert(std::make_pair<const int, int>(2, 5));
+	tree.insert(std::make_pair<const int, int>(3, 3));
+	tree.insert(std::make_pair<const int, int>(4, 2));
+	tree.insert(std::make_pair<const int, int>(5, 9));
+	tree.insert(std::make_pair<const int, int>(6, -1));
+	tree.insert(std::make_pair<const int, int>(7, -53));
+	tree.insert(std::make_pair<const int, int>(8, 12));
 
-	/*
-	std::map<int, int> std_map;
+	std::cout << std::endl << "-------- TREE ---------" << std::endl;
+	tree.printTree();
+	std::cout << std::endl << "-----------------------" << std::endl << std::endl;
 
-	std_map.insert(std::make_pair(1, 100));
-	std_map.insert(std::make_pair(2, 20));
-	std_map.insert(std::make_pair(3, 300));
-	std_map.insert(std::make_pair(4, 4));
+	iterator it = insert_ret.first;
 
-	std::map<int, int>::iterator std_it = std_map.begin();
-	std::map<int, int>::iterator std_ite = std_map.end();
-
-	print_map_content(std_map);
-	*/
+	int i = 0;
+	while (i < 8) {
+		std::cout << (*it).first << " : " << (*it).second << std::endl;
+		++it;
+		i++;
+	}
 
 	return 0;
 }
-
-/*
-
-*/
