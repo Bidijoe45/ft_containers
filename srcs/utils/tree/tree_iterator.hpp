@@ -14,12 +14,12 @@ template<class Node, class Compare>
 			typedef Node*		pointer;
 			typedef Node&		reference;
 
-			tree_iterator(const Compare &comp = Compare()) : comp_(comp)
+			tree_iterator(const Compare comp = Compare()) : comp_(comp)
 			{
 				this->_elemPtr = NULL;
 			}
 
-			tree_iterator(Node *ptr, const Compare &comp = Compare()) : comp_(comp), last_(ptr)
+			tree_iterator(Node *ptr, const Compare comp = Compare()) : comp_(comp), last_(NULL)
 			{
 				this->_elemPtr = ptr;
 			}
@@ -65,36 +65,19 @@ template<class Node, class Compare>
 			//TODO:
 			tree_iterator &operator++()
 			{
-				if (this->_elemPtr->parent == NULL && !this->_elemPtr->right->isEmpty()) {
-					std::cout << "entra 1" << std::endl;
+
+				if (!this->_elemPtr->right->isEmpty()) {
 					this->_elemPtr = this->_elemPtr->right;
 					while (!this->_elemPtr->left->isEmpty())
 						this->_elemPtr = this->_elemPtr->left;
-				} else if (this->_elemPtr->parent == this->last_ && !this->_elemPtr->right->isEmpty()) {
-					std::cout << "entra 2" << std::endl;
-					
-					this->last_ = this->_elemPtr;
-					while (this->_elemPtr->parent != NULL) {
-						this->_elemPtr = this->_elemPtr->parent;
-						if (this->_elemPtr->data.first > this->last_->data.first)
-							break ;
+				} else {
+					Node *p = this->_elemPtr->parent;
+					while (p != NULL && this->_elemPtr == p->right) {
+						this->_elemPtr = p;
+						p = p->parent;
 					}
-				} else if (this->_elemPtr->parent == this->last_) {
-
-				} else if (this->_elemPtr->left->isEmpty() && this->_elemPtr->right->isEmpty()) {
-					std::cout << "entra 3" << std::endl;
-
-					this->last_ = this->_elemPtr;
-					this->_elemPtr = _elemPtr->parent;
-				} else if (this->_elemPtr->left == this->last_ || this->_elemPtr->left->isEmpty()) {
-					std::cout << "entra 4" << std::endl;
-
-					this->last_ = this->_elemPtr;
-					this->_elemPtr = this->_elemPtr->right;
-					while (!this->_elemPtr->left->isEmpty())
-						this->_elemPtr = this->_elemPtr->left;
+					this->_elemPtr = p;
 				}
-
 
 				return *this;
 			}
@@ -122,11 +105,17 @@ template<class Node, class Compare>
 				return it;
 			}
 
+			bool operator!=(const tree_iterator &it)
+			{
+				return this->_elemPtr != it._elemPtr;
+			}
+
 		private:
 			Node *_elemPtr;
 			Node *last_;
 			Compare comp_;
 			
 	};
+
 
 }

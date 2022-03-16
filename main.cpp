@@ -126,30 +126,28 @@ int main ()
 	typedef std::less<value_type> compare;
 	typedef ft::tree_iterator<node, compare> iterator;
 
-
 	ft::RedBlackTree<value_type, node, compare> tree;
 
-	std::pair<iterator, bool> insert_ret = tree.insert(std::make_pair<const int, int>(1, 1));
+	std::pair<iterator, bool> insert_ret = tree.insert(std::make_pair<int, int>(1, 1));
 
-	tree.insert(std::make_pair<const int, int>(2, 5));
-	tree.insert(std::make_pair<const int, int>(3, 3));
-	tree.insert(std::make_pair<const int, int>(4, 2));
-	tree.insert(std::make_pair<const int, int>(5, 9));
-	tree.insert(std::make_pair<const int, int>(6, -1));
-	tree.insert(std::make_pair<const int, int>(7, -53));
-	tree.insert(std::make_pair<const int, int>(8, 12));
+	tree.insert(std::make_pair<int, int>(2, 5));
+	tree.insert(std::make_pair<int, int>(3, 3));
+	tree.insert(std::make_pair<int, int>(4, 2));
+	tree.insert(std::make_pair<int, int>(5, 9));
+	tree.insert(std::make_pair<int, int>(6, -1));
+	tree.insert(std::make_pair<int, int>(7, -53));
+	tree.insert(std::make_pair<int, int>(8, 12));
 
 	std::cout << std::endl << "-------- TREE ---------" << std::endl;
 	tree.printTree();
 	std::cout << std::endl << "-----------------------" << std::endl << std::endl;
 
 	iterator it = insert_ret.first;
+	iterator ite = iterator(NULL);
 
-	int i = 0;
-	while (i < 8) {
+	while (it != ite) {
 		std::cout << (*it).first << " : " << (*it).second << std::endl;
 		++it;
-		i++;
 	}
 
 	return 0;
