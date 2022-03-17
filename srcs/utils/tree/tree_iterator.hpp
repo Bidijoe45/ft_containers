@@ -24,14 +24,12 @@ template<class Node, class Compare>
 				this->_elemPtr = ptr;
 			}
 
-			//TODO:
-			/*
-			template <class U>
-			tree_iterator<U>(const tree_iterator<U> &it)
+
+			template <class T, class U>
+			tree_iterator<T, U>(const tree_iterator<U, T> &it)
 			{
 				this->_elemPtr = it.base();
 			}
-			*/
 
 			virtual ~tree_iterator() {}
 	
@@ -61,11 +59,8 @@ template<class Node, class Compare>
 			}
 
 			/* OPERATIONS OPERATORS*/
-
-			//TODO:
 			tree_iterator &operator++()
 			{
-
 				if (!this->_elemPtr->right->isEmpty()) {
 					this->_elemPtr = this->_elemPtr->right;
 					while (!this->_elemPtr->left->isEmpty())
@@ -82,27 +77,36 @@ template<class Node, class Compare>
 				return *this;
 			}
 
-			//TODO:
 			tree_iterator operator++(int)
 			{
-				tree_iterator it(*this);
-				this->_elemPtr++;
-				return it;
+				tree_iterator tmp_it(*this);
+				this->operator++();
+				return tmp_it;
 			}
 			
-			//TODO:
 			tree_iterator &operator--()
 			{
-				this->_elemPtr--;
+				if (!this->_elemPtr->left->isEmpty()) {
+					this->_elemPtr = this->_elemPtr->left;
+					while (!this->_elemPtr->right->isEmpty())
+						this->_elemPtr = this->_elemPtr->right;
+				} else {
+					Node *p = this->_elemPtr->parent;
+					while (p != NULL && this->_elemPtr == p->left) {
+						this->_elemPtr = p;
+						p = p->parent;
+					}
+					this->_elemPtr = p;
+				}
+
 				return *this;
 			}
 
-			//TODO:
 			tree_iterator operator--(int)
 			{
-				tree_iterator it(*this);
-				this->_elemPtr--;
-				return it;
+				tree_iterator tmp_it(*this);
+				this->operator--();
+				return tmp_it;
 			}
 
 			bool operator!=(const tree_iterator &it)

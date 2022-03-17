@@ -13,14 +13,15 @@ class map
 	public:
 		typedef Key key_type;
 		typedef T mapped_type;
-		typedef ft::pair<const key_type, mapped_type> value_type;
+		typedef std::pair<const key_type, mapped_type> value_type;
 		typedef Compare key_compare;
 		typedef Allocator allocator_type;
 		typedef typename allocator_type::reference reference;
 		typedef typename allocator_type::const_reference const_reference;
 		typedef typename allocator_type::pointer pointer;
 		typedef typename allocator_type::const_pointer const_pointer;
-		typedef ft::tree_iterator<Node<value_type>, Compare> iterator;
+		typedef ft::Node<value_type> Node;
+		typedef ft::tree_iterator<Node, Compare> iterator;
 		//typedef ft::tree_iterator<const value_type> const_iterator;
 		//typedef ft::reverse_iterator<ft::tree_iterator<T> > reverse_iterator;
 		//typedef ft::reverse_iterator<ft::tree_iterator<const T> > const_reverse_iterator;
@@ -28,21 +29,21 @@ class map
 		typedef std::size_t size_type;
 
 		class value_compare : std::binary_function<value_type, value_type, bool>
-			{
-				friend class map<key_type, mapped_type, key_compare, Allocator>;
-				
-				protected:
-					Compare comp;
-					value_compare (Compare c) : comp(c) {}
-				
-				public:
-					typedef bool result_type;
-  					typedef value_type first_argument_type;
-  					typedef value_type second_argument_type;
-					bool operator() (const value_type& x, const value_type& y) const {
-						return (comp(x.first, y.first));
-					} 
-			};
+		{
+			friend class map<key_type, mapped_type, key_compare, Allocator>;
+			
+			protected:
+				Compare comp;
+				value_compare (Compare c) : comp(c) {}
+			
+			public:
+				typedef bool result_type;
+				typedef value_type first_argument_type;
+				typedef value_type second_argument_type;
+				bool operator() (const value_type& x, const value_type& y) const {
+					return (comp(x.first, y.first));
+				} 
+		};
 
 		/* CONSTRUCTORS */
 		explicit map(const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
@@ -68,17 +69,16 @@ class map
 		}
 
 		/* ITERATORS */
-		//TODO:
 		iterator begin() {
-	
-			return iterator(data_.minimum(data_.getRoot()));
+			return iterator(tree_.minimum(tree_.getRoot()));
 		}
 
 		//TODO:
 		//const_iterator begin() const;
 
-		//TODO:
-		iterator end();
+		iterator end() {
+			return iterator(NULL);
+		}
 
 		//TODO:
 		//const_iterator end() const;
@@ -109,23 +109,47 @@ class map
 		}
 
 		/* ELEMENT ACCESSS */
-		//TODO:
+
 		mapped_type& operator[] (const key_type& k) {
-			//aqui usar find
+			std::pair<iterator, bool> insert = this->tree_.insert(std::make_pair(k, mapped_type()));
+
+			return (*(insert.first)).second;
 		}
 
 		/* MODIFIERS */
-		//TODO:
-		ft::pair<iterator,bool> insert(const value_type& val) {
-			return data_.insert(val);
+
+		std::pair<iterator, bool> insert(const value_type& val) {
+			std::pair<iterator, bool> insert = this->tree_.insert(val);
+
+			if (insert.second)
+				this->size_++;
+
+			return insert;
 		}
 
-		//TODO:
-		iterator insert (iterator position, const value_type& val);
+		iterator insert(iterator position, const value_type& val) {
+			std::pair<iterator, bool> insert = this->tree_.insertWithHint(position, val);
 
-		//TODO:
-		template <class InputIterator>
-  		void insert (InputIterator first, InputIterator last);
+			if (insert.second)
+				this->size_++;
+
+			return insert.first;
+		}
+
+		template<class InputIterator>
+		void insert(typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last ) {
+			std::pair<iterator, bool> insert;
+
+			while (first != last) {
+				
+				insert = this->tree_.insert(*first);
+
+				if (insert.second)
+					this->size_++;
+				first++;
+			}
+
+		}
 
 		//TODO:
 		void erase (iterator position);
@@ -143,8 +167,10 @@ class map
 		void clear();
 
 		/* OPERATIONS */
-		//TODO:
-		iterator find(const key_type& k);
+
+		iterator find(const key_type& k) {
+			return this->tree_.findByKey(k);
+		}
 
 		//TODO:
 		//const_iterator find(const key_type& k) const;
@@ -176,11 +202,11 @@ class map
 		}
 
 		void printTree() {
-			data_.printTree();
+			tree_.printTree();
 		}
 
 	private:
-		RedBlackTree<value_type, Node<value_type>, Compare> data_;
+		RedBlackTree<value_type, Node, Compare> tree_;
 		size_type size_;
 		allocator_type allocator_;
 

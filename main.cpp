@@ -121,34 +121,42 @@ void print_map_content(T &map)
 
 int main ()
 {
-	typedef std::pair<int, int> value_type;
-	typedef ft::Node<value_type> node;
-	typedef std::less<value_type> compare;
-	typedef ft::tree_iterator<node, compare> iterator;
 
-	ft::RedBlackTree<value_type, node, compare> tree;
 
-	std::pair<iterator, bool> insert_ret = tree.insert(std::make_pair<int, int>(1, 1));
+	ft::map<int, int> map;
 
-	tree.insert(std::make_pair<int, int>(2, 5));
-	tree.insert(std::make_pair<int, int>(3, 3));
-	tree.insert(std::make_pair<int, int>(4, 2));
-	tree.insert(std::make_pair<int, int>(5, 9));
-	tree.insert(std::make_pair<int, int>(6, -1));
-	tree.insert(std::make_pair<int, int>(7, -53));
-	tree.insert(std::make_pair<int, int>(8, 12));
+	map.insert(std::make_pair(2, 1));
+	map.insert(std::make_pair(4, 22));
+	std::pair<ft::map<int, int>::iterator, bool> insert_ret = map.insert(std::make_pair(6, 333));
+	map.insert(std::make_pair(8, 4444));
+	map.insert(std::make_pair(10, 55555));
+
+	ft::map<int, int>::iterator it = insert_ret.first;
+
+	map.insert(it, std::make_pair(12, 123));
+
+	ft::map<int, int>::iterator find1 = map.find(123123);
+
+	if (find1 != map.end())
+		std::cout << "encontrad 1" << std::endl;
+
+	ft::map<int, int>::iterator find2 = map.find(200);
+
+	if (find2 != map.end())
+		std::cout << "encontrad 2" << std::endl;
+	
 
 	std::cout << std::endl << "-------- TREE ---------" << std::endl;
-	tree.printTree();
+	map.printTree();
 	std::cout << std::endl << "-----------------------" << std::endl << std::endl;
 
-	iterator it = insert_ret.first;
-	iterator ite = iterator(NULL);
 
+	/*
 	while (it != ite) {
 		std::cout << (*it).first << " : " << (*it).second << std::endl;
-		++it;
+		it++;
 	}
-
+	*/
+	
 	return 0;
 }

@@ -45,7 +45,7 @@ public:
 	typedef T value_type;
 	typedef ft::tree_iterator<Node, Compare> iterator;
 
-	RedBlackTree() : allocator_(Allocator())
+	RedBlackTree() : allocator_(Allocator()), comp_(Compare())
 	{
 		emptyNode_ = createEmptyNode();
 		root_ = emptyNode_;
@@ -54,11 +54,6 @@ public:
 	~RedBlackTree()
 	{
 		delete this->emptyNode_;
-	}
-
-	Node *searchTree(int k)
-	{
-		return searchTreeHelper(this->root_, k);
 	}
 
 	Node *minimum(Node *node)
@@ -129,7 +124,9 @@ public:
 		x->parent = y;
 	}
 
-	std::pair<iterator, bool> insert(const value_type &data)
+	//FIXME: BORRAR ESTO antes de subir
+	/*
+	std::pair<iterator, bool> insert2(const value_type &data)
 	{
 		Node *node = this->allocator_.allocate(1);
 		this->allocator_.construct(node, Node(data));
@@ -173,6 +170,96 @@ public:
 		insertFix(node);
 		return std::make_pair(iterator(node), true);
 	}
+	*/
+
+	std::pair<iterator, bool> insert(const value_type &data)
+	{
+		Node *new_node;
+		Node *current_node;
+		Node *last_node;
+
+		if (this->root_ == emptyNode_) {
+			new_node = createNewNode(data);
+			this->root_ = new_node;
+			new_node->color = BLACK;
+			return std::make_pair(iterator(new_node), true);
+		}
+
+		current_node = this->root_;
+		while (current_node != this->emptyNode_) {
+			last_node = current_node;
+
+			if (data.first == current_node->data.first) {
+				return std::make_pair(iterator(current_node), false);
+			}
+			else if (data.first < current_node->data.first) {
+				current_node = current_node->left;
+			}
+			else {
+				current_node = current_node->right;
+			}
+		}
+
+		new_node = createNewNode(data);
+		new_node->parent = last_node;
+		if (data.first < last_node->data.first) {
+			last_node->left = new_node;
+		}
+		else  {
+			last_node->right = new_node;
+		}
+		
+		insertFix(new_node);
+		return std::make_pair(iterator(new_node), true);
+	}
+
+	std::pair<iterator, bool> insertWithHint(iterator position, const value_type &data)
+	{
+		Node *new_node;
+		Node *current_node;
+		Node *last_node;
+		bool correct_hint;
+
+		if (this->root_ == emptyNode_) {
+			new_node = createNewNode(data);
+			this->root_ = new_node;
+			new_node->color = BLACK;
+			return std::make_pair(iterator(new_node), true);
+		}
+
+		correct_hint = checkHint(position, data);
+
+		if (correct_hint)
+			current_node = position.base();
+		else
+			current_node = this->root_;
+		
+		while (current_node != this->emptyNode_) {
+			last_node = current_node;
+
+			if (data.first == current_node->data.first) {
+				return std::make_pair(iterator(current_node), false);
+			}
+			else if (data.first < current_node->data.first) {
+				current_node = current_node->left;
+			}
+			else {
+				current_node = current_node->right;
+			}
+		}
+
+		new_node = createNewNode(data);
+		new_node->parent = last_node;
+		if (data.first < last_node->data.first) {
+			last_node->left = new_node;
+		}
+		else  {
+			last_node->right = new_node;
+		}
+		
+		insertFix(new_node);
+		return std::make_pair(iterator(new_node), true);
+	}
 
 	void deleteNode(int data)
 	{
@@ -193,7 +280,6 @@ public:
 				std::cout << "L----";
 				indent += "|  ";
 			}
-
 			
 			std::cout << "[" << root->data.first <<"] " << root->data.second << "(" << (root->color == RED ? "RED" : "BLACK") << ")" << std::endl;
 			printHelper(root->left, indent, false);
@@ -209,11 +295,31 @@ public:
 		}
 	}
 
+	iterator findByKey(typename value_type::first_type &key) {
+
+		Node *curretNode = this->root_;
+
+		while (curretNode != this->emptyNode_) {
+			
+			if (curretNode->data.first == key)
+				return iterator(curretNode);
+			else if (key < curretNode->data.first)
+				curretNode = curretNode->left;
+			else
+				curretNode = curretNode->right;
+		}
+
+		return iterator(NULL);
+	}
+
+
 private:
 	Node *root_;
 	Node *emptyNode_;
 	Allocator allocator_;
+	Compare comp_;
 
+	//FIXME: no se usa allocator
 	Node *createEmptyNode() {
 		Node *emptyNode_ = new Node();
 		emptyNode_->color = BLACK;
@@ -222,20 +328,19 @@ private:
 		return emptyNode_;
 	}
 
-	Node *searchTreeHelper(Node *node, int key)
-	{
-		if (node == emptyNode_ || key == node->data)
-		{
-			return node;
-		}
+	Node *createNewNode(const value_type &data) {
+		Node *node = this->allocator_.allocate(1);
 
-		if (key < node->data)
-		{
-			return searchTreeHelper(node->left, key);
-		}
-		return searchTreeHelper(node->right, key);
+		this->allocator_.construct(node, Node(data));
+		node->parent = NULL;
+		node->left = emptyNode_;
+		node->right = emptyNode_;
+		node->color = RED;
+
+		return node;
 	}
 
+	
 	void deleteFix(Node *x)
 	{
 		Node *s;
@@ -451,6 +556,18 @@ private:
 		}
 		root_->color = BLACK;
 	}
+
+	bool checkHint(iterator position, const value_type &data) {
+		iterator next_position = position;
+
+		next_position++;
+
+		if ((*position).first < data.first &&  data.first < (*next_position).first)
+			return true;
+
+		return false;
+	}
+
 };
 
 }
