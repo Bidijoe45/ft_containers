@@ -66,7 +66,8 @@ class map
 			}
 		}
 
-		map(const map& x) {
+		//FIXME: El prototipo de x tiene que ser const
+		map(map& x) {
 			this->allocator_ = x.get_allocator();
 			this->comp_ = map::key_compare();
 			this->insert(x.begin(), x.end());
@@ -162,35 +163,60 @@ class map
 
 		void erase (typename ft::enable_if<!ft::is_integral<iterator>::value, iterator>::type position) {
 			key_type key = (*position).first;
+			bool deleted = this->tree_.deleteNode(key);
 
-			this->tree_.deleteNode(key);
+			if (deleted)
+				this->size_--;
 		}
 
 		size_type erase (const key_type& k) {
-			return this->tree_.deleteNode(k);
+			bool deleted = this->tree_.deleteNode(k);
+
+			if (deleted) {
+				this->size_--;
+				return 1;
+			}
+			return 0;
 		}
 
 		void erase (typename ft::enable_if<!ft::is_integral<iterator>::value, iterator>::type first, iterator last) {
 			key_type key;
+			bool deleted;
 
 			while (first != last) {
 				key = (*first).first;
 
-				this->tree_.deleteNode(key);
+				deleted = this->tree_.deleteNode(key);
+				if (deleted)
+					this->size_--;
 				first++;
 			}
 		}
 
-		//TODO:
 		void swap (map& x) {
-			allocator_type tmp_alloc = x.get_allocator();
-			size_type tmp_size = x.size();
+			allocator_type tmp_alloc = this->get_allocator();
+			size_type tmp_size = this->size();
+			RedBlackTree<value_type, Node, key_compare> tmp_tree(this->tree_);
 
+			this->allocator_ = x.get_allocator();
+			this->size_ = x.size();
+			this->tree_ = x.tree_;
+
+			x.allocator_ = tmp_alloc;
+			x.size_ = tmp_size;
+			x.tree_ = tmp_tree;
 			
 		}
 
-		//TODO:
-		void clear();
+		void clear() {
+			iterator it = this->begin();
+			iterator ite = this->end();
+
+			while (it != ite) {
+				this->erase(it);
+				it++;
+			}
+		}
 
 		/* OPERATIONS */
 
@@ -201,11 +227,19 @@ class map
 		//TODO:
 		//const_iterator find(const key_type& k) const;
 
-		//TODO:
-		size_type count(const key_type& k) const;
+		//FIXME: el prototipo tiene const
+		size_type count(const key_type& k) {
+			iterator found = this->tree_.findByKey(k);
+
+			if (found != this->end())
+				return 1;
+			return 0;
+		}
 
 		//TODO:
-		iterator lower_bound(const key_type& k);
+		iterator lower_bound(const key_type& k) {
+			return this->tree_.lower_bound(k);
+		}
 
 		//TODO:
 		//const_iterator lower_bound(const key_type& k) const;

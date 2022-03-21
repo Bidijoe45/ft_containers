@@ -44,22 +44,35 @@ class RedBlackTree
 public:
 	typedef T value_type;
 	typedef ft::tree_iterator<Node, Compare> iterator;
+	typedef Compare key_compare;
 
+	//FIXME: usar allocator
 	RedBlackTree() : allocator_(Allocator()), comp_(Compare())
 	{
-		emptyNode_ = createEmptyNode();
-		root_ = emptyNode_;
+		root_ = new Node();
 	}
 
-	~RedBlackTree()
-	{
-		delete this->emptyNode_;
+	RedBlackTree(const RedBlackTree &tree) {
+		this->root_ = tree.getRoot();
+		this->comp_ = tree.comp_;
+	}
+
+	RedBlackTree &operator=(const RedBlackTree &tree) {
+		this->root_ = tree.getRoot();
+		this->comp_ = tree.comp_;
+
+		return *this;
+	}
+
+
+	//TODO:
+	~RedBlackTree() {
+
 	}
 
 	Node *minimum(Node *node)
 	{
-		while (node->left != emptyNode_)
-		{
+		while (!node->left->isEmpty()) {
 			node = node->left;
 		}
 		return node;
@@ -67,8 +80,7 @@ public:
 
 	Node *maximum(Node *node)
 	{
-		while (node->right != emptyNode_)
-		{
+		while (!node->right->isEmpty()) {
 			node = node->right;
 		}
 		return node;
@@ -78,7 +90,7 @@ public:
 	{
 		Node *y = x->right;
 		x->right = y->left;
-		if (y->left != emptyNode_)
+		if (!y->left->isEmpty())
 		{
 			y->left->parent = x;
 		}
@@ -103,8 +115,7 @@ public:
 	{
 		Node *y = x->left;
 		x->left = y->right;
-		if (y->right != emptyNode_)
-		{
+		if (!y->right->isEmpty()) {
 			y->right->parent = x;
 		}
 		y->parent = x->parent;
@@ -178,7 +189,7 @@ public:
 		Node *current_node;
 		Node *last_node;
 
-		if (this->root_ == emptyNode_) {
+		if (this->root_->isEmpty()) {
 			new_node = createNewNode(data);
 			this->root_ = new_node;
 			new_node->color = BLACK;
@@ -186,7 +197,7 @@ public:
 		}
 
 		current_node = this->root_;
-		while (current_node != this->emptyNode_) {
+		while (!current_node->isEmpty()) {
 			last_node = current_node;
 
 			if (data.first == current_node->data.first) {
@@ -220,7 +231,7 @@ public:
 		Node *last_node;
 		bool correct_hint;
 
-		if (this->root_ == emptyNode_) {
+		if (this->root_->isEmpty()) {
 			new_node = createNewNode(data);
 			this->root_ = new_node;
 			new_node->color = BLACK;
@@ -234,7 +245,7 @@ public:
 		else
 			current_node = this->root_;
 		
-		while (current_node != this->emptyNode_) {
+		while (!current_node->isEmpty()) {
 			last_node = current_node;
 
 			if (data.first == current_node->data.first) {
@@ -270,7 +281,7 @@ public:
 	}
 
 	void printHelper(Node *root, std::string indent, bool last) {
-		if (root != this->emptyNode_) {
+		if (!root->isEmpty()) {
 			std::cout << indent;
 			if (last) {
 				std::cout << "R----";
@@ -294,11 +305,11 @@ public:
 		}
 	}
 
-	iterator findByKey(typename value_type::first_type &key) {
+	iterator findByKey(const typename value_type::first_type &key) const {
 
 		Node *curretNode = this->root_;
 
-		while (curretNode != this->emptyNode_) {
+		while (!curretNode->isEmpty()) {
 			
 			if (curretNode->data.first == key)
 				return iterator(curretNode);
@@ -311,30 +322,45 @@ public:
 		return iterator(NULL);
 	}
 
+	iterator lower_bound(const typename value_type::first_type &key) const {
+		
+		Node *curretNode = this->root_;
+		Node *last;
+
+		while (!curretNode->isEmpty()) {
+			if (key == curretNode->data.first) {
+				return iterator(curretNode);
+			}
+			else if (key < curretNode->data.first) {
+				last = curretNode;
+				curretNode = curretNode->left;
+			}	
+			else if (key > curretNode->data.first) {
+				last = curretNode;
+				curretNode = curretNode->right;
+			}
+			else {
+				
+			}
+		}
+
+		return iterator(NULL);
+	}
 
 private:
-	//FIXME: no se usa allocator
-	Node *createEmptyNode() {
-		Node *emptyNode_ = new Node();
-		emptyNode_->color = BLACK;
-		emptyNode_->left = NULL;
-		emptyNode_->right = NULL;
-		return emptyNode_;
-	}
 
 	Node *createNewNode(const value_type &data) {
 		Node *node = this->allocator_.allocate(1);
 
 		this->allocator_.construct(node, Node(data));
 		node->parent = NULL;
-		node->left = emptyNode_;
-		node->right = emptyNode_;
+		node->left = new Node();
+		node->right = new Node();
 		node->color = RED;
 
 		return node;
 	}
 
-	
 	void deleteFix(Node *x)
 	{
 		Node *s;
@@ -426,9 +452,10 @@ private:
 
 	bool deleteNodeHelper(Node *node, typename value_type::first_type &key)
 	{
-		Node *z = emptyNode_;
+		Node *z = new Node();
 		Node *x, *y;
-		while (node != emptyNode_)
+
+		while (!node->isEmpty())
 		{
 			if (node->data.first == key) {
 				z = node;
@@ -442,17 +469,17 @@ private:
 			}
 		}
 
-		if (z == emptyNode_) {
+		if (z->isEmpty()) {
 			return false;
 		}
 
 		y = z;
 		int y_original_color = y->color;
-		if (z->left == emptyNode_) {
+		if (z->left->isEmpty()) {
 			x = z->right;
 			this->swap(z, z->right);
 		}
-		else if (z->right == emptyNode_) {
+		else if (z->right->isEmpty()) {
 			x = z->left;
 			this->swap(z, z->left);
 		}
@@ -552,7 +579,6 @@ private:
 	}
 
 	Node *root_;
-	Node *emptyNode_;
 	Allocator allocator_;
 	Compare comp_;
 
