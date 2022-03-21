@@ -261,9 +261,8 @@ public:
 		return std::make_pair(iterator(new_node), true);
 	}
 
-	void deleteNode(int data)
-	{
-		deleteNodeHelper(this->root_, data);
+	bool deleteNode(typename value_type::first_type &key) {
+		return deleteNodeHelper(this->root_, key);
 	}
 
 	Node *getRoot() const {
@@ -314,11 +313,6 @@ public:
 
 
 private:
-	Node *root_;
-	Node *emptyNode_;
-	Allocator allocator_;
-	Compare comp_;
-
 	//FIXME: no se usa allocator
 	Node *createEmptyNode() {
 		Node *emptyNode_ = new Node();
@@ -430,55 +424,46 @@ private:
 		v->parent = u->parent;
 	}
 
-	void deleteNodeHelper(Node *node, int key)
+	bool deleteNodeHelper(Node *node, typename value_type::first_type &key)
 	{
 		Node *z = emptyNode_;
 		Node *x, *y;
 		while (node != emptyNode_)
 		{
-			if (node->data == key)
-			{
+			if (node->data.first == key) {
 				z = node;
 			}
 
-			if (node->data <= key)
-			{
+			if (node->data.first <= key) {
 				node = node->right;
 			}
-			else
-			{
+			else {
 				node = node->left;
 			}
 		}
 
-		if (z == emptyNode_)
-		{
-			return;
+		if (z == emptyNode_) {
+			return false;
 		}
 
 		y = z;
 		int y_original_color = y->color;
-		if (z->left == emptyNode_)
-		{
+		if (z->left == emptyNode_) {
 			x = z->right;
 			this->swap(z, z->right);
 		}
-		else if (z->right == emptyNode_)
-		{
+		else if (z->right == emptyNode_) {
 			x = z->left;
 			this->swap(z, z->left);
 		}
-		else
-		{
+		else {
 			y = this->minimum(z->right);
 			y_original_color = y->color;
 			x = y->right;
-			if (y->parent == z)
-			{
+			if (y->parent == z) {
 				x->parent = y;
 			}
-			else
-			{
+			else {
 				this->swap(y, y->right);
 				y->right = z->right;
 				y->right->parent = y;
@@ -490,10 +475,11 @@ private:
 			y->color = z->color;
 		}
 		delete z;
-		if (y_original_color == 0)
-		{
+		if (y_original_color == 0) {
 			deleteFix(x);
 		}
+		
+		return true;
 	}
 
 	void insertFix(Node *k)
@@ -564,6 +550,11 @@ private:
 
 		return false;
 	}
+
+	Node *root_;
+	Node *emptyNode_;
+	Allocator allocator_;
+	Compare comp_;
 
 };
 

@@ -67,9 +67,9 @@ class map
 		}
 
 		map(const map& x) {
-			this->allocator_ = map.get_allocator();
+			this->allocator_ = x.get_allocator();
 			this->comp_ = map::key_compare();
-			this->insert(map.begin(), map.end());
+			this->insert(x.begin(), x.end());
 		}
 
 		//TODO:
@@ -160,19 +160,34 @@ class map
 
 		}
 
-		//TODO:
-		void erase (iterator position) {
-			
+		void erase (typename ft::enable_if<!ft::is_integral<iterator>::value, iterator>::type position) {
+			key_type key = (*position).first;
+
+			this->tree_.deleteNode(key);
+		}
+
+		size_type erase (const key_type& k) {
+			return this->tree_.deleteNode(k);
+		}
+
+		void erase (typename ft::enable_if<!ft::is_integral<iterator>::value, iterator>::type first, iterator last) {
+			key_type key;
+
+			while (first != last) {
+				key = (*first).first;
+
+				this->tree_.deleteNode(key);
+				first++;
+			}
 		}
 
 		//TODO:
-		size_type erase (const key_type& k);
+		void swap (map& x) {
+			allocator_type tmp_alloc = x.get_allocator();
+			size_type tmp_size = x.size();
 
-		//TODO:
-		void erase (iterator first, iterator last);
-
-		//TODO:
-		void swap (map& x);
+			
+		}
 
 		//TODO:
 		void clear();
