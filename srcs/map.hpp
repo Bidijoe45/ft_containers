@@ -50,18 +50,27 @@ class map
 		{
 			this->allocator_ = alloc;
 			this->size_ = 0;
+			this->comp_ = comp;
 		}
 
-		//TODO:
 		template <class InputIterator>
   		map(typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last,
 		  	const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
 		{
 			this->allocator_ = alloc;
+			this->comp_ = comp;
+
+			while (first != last) {
+				this->insert(*first);
+				first++;
+			}
 		}
 
-		//TODO:
-		map(const map& x);
+		map(const map& x) {
+			this->allocator_ = map.get_allocator();
+			this->comp_ = map::key_compare();
+			this->insert(map.begin(), map.end());
+		}
 
 		//TODO:
 		~map() {
@@ -152,7 +161,9 @@ class map
 		}
 
 		//TODO:
-		void erase (iterator position);
+		void erase (iterator position) {
+			
+		}
 
 		//TODO:
 		size_type erase (const key_type& k);
@@ -206,9 +217,10 @@ class map
 		}
 
 	private:
-		RedBlackTree<value_type, Node, Compare> tree_;
+		RedBlackTree<value_type, Node, key_compare> tree_;
 		size_type size_;
 		allocator_type allocator_;
+		key_compare comp_;
 
 };
 

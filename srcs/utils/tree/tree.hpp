@@ -418,16 +418,13 @@ private:
 
 	void swap(Node *u, Node *v)
 	{
-		if (u->parent == NULL)
-		{
+		if (u->parent == NULL) {
 			root_ = v;
 		}
-		else if (u == u->parent->left)
-		{
+		else if (u == u->parent->left) {
 			u->parent->left = v;
 		}
-		else
-		{
+		else {
 			u->parent->right = v;
 		}
 		v->parent = u->parent;
