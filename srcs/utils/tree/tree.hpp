@@ -78,12 +78,22 @@ public:
 		return node;
 	}
 
+	const Node *minimum(Node *node) const 
+	{
+		return this->minimum(node);
+	}
+
 	Node *maximum(Node *node)
 	{
 		while (!node->right->isEmpty()) {
 			node = node->right;
 		}
 		return node;
+	}
+
+	const Node *maximum(Node *node) const
+	{
+		return this->maximum(node);
 	}
 
 	void leftRotate(Node *x)
@@ -305,46 +315,21 @@ public:
 		}
 	}
 
-	iterator findByKey(const typename value_type::first_type &key) const {
+	Node *findByKey(const typename value_type::first_type &key) const {
 
 		Node *curretNode = this->root_;
 
 		while (!curretNode->isEmpty()) {
 			
 			if (curretNode->data.first == key)
-				return iterator(curretNode);
+				return curretNode;
 			else if (key < curretNode->data.first)
 				curretNode = curretNode->left;
 			else
 				curretNode = curretNode->right;
 		}
 
-		return iterator(NULL);
-	}
-
-	iterator lower_bound(const typename value_type::first_type &key) const {
-		
-		Node *curretNode = this->root_;
-		Node *last;
-
-		while (!curretNode->isEmpty()) {
-			if (key == curretNode->data.first) {
-				return iterator(curretNode);
-			}
-			else if (key < curretNode->data.first) {
-				last = curretNode;
-				curretNode = curretNode->left;
-			}	
-			else if (key > curretNode->data.first) {
-				last = curretNode;
-				curretNode = curretNode->right;
-			}
-			else {
-				
-			}
-		}
-
-		return iterator(NULL);
+		return NULL;
 	}
 
 private:

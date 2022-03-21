@@ -7,13 +7,13 @@ namespace ft
 template<class Node, class Compare>
 	class tree_iterator : ft::iterator<std::bidirectional_iterator_tag, Node> {
 		public:
-			typedef typename Node::value_type value_type;
+			typedef const typename Node::value_type value_type;
 			typedef typename ft::iterator<std::bidirectional_iterator_tag, Node>::value_type			node_type;
 			typedef typename ft::iterator<std::bidirectional_iterator_tag, Node>::difference_type		difference_type;
 			typedef typename ft::iterator<std::bidirectional_iterator_tag, Node>::iterator_category		iterator_category;
 			typedef Node*		pointer;
 			typedef Node&		reference;
-
+ 
 			tree_iterator(const Compare comp = Compare()) : comp_(comp)
 			{
 				this->_elemPtr = NULL;
@@ -23,7 +23,6 @@ template<class Node, class Compare>
 			{
 				this->_elemPtr = ptr;
 			}
-
 
 			template <class T, class U>
 			tree_iterator<T, U>(const tree_iterator<U, T> &it)
@@ -48,12 +47,18 @@ template<class Node, class Compare>
 			}
 
 			/* ACCESS OPERATORS*/
+
 			value_type &operator*()
 			{
 				return this->_elemPtr->data;
 			}
 
-			pointer operator->() const
+			value_type &operator*() const
+			{
+				return this->_elemPtr->data;
+			}
+
+			pointer operator->()
 			{
 				return this->_elemPtr;
 			}

@@ -22,7 +22,7 @@ class map
 		typedef typename allocator_type::const_pointer const_pointer;
 		typedef ft::Node<value_type> Node;
 		typedef ft::tree_iterator<Node, Compare> iterator;
-		//typedef ft::tree_iterator<const value_type> const_iterator;
+		typedef ft::tree_iterator<const Node, Compare> const_iterator;
 		//typedef ft::reverse_iterator<ft::tree_iterator<T> > reverse_iterator;
 		//typedef ft::reverse_iterator<ft::tree_iterator<const T> > const_reverse_iterator;
 		typedef typename ft::iterator_traits<iterator> difference_type;
@@ -66,8 +66,7 @@ class map
 			}
 		}
 
-		//FIXME: El prototipo de x tiene que ser const
-		map(map& x) {
+		map(const map& x) {
 			this->allocator_ = x.get_allocator();
 			this->comp_ = map::key_compare();
 			this->insert(x.begin(), x.end());
@@ -79,19 +78,23 @@ class map
 		}
 
 		/* ITERATORS */
+		
 		iterator begin() {
 			return iterator(tree_.minimum(tree_.getRoot()));
 		}
+		
 
-		//TODO:
-		//const_iterator begin() const;
+		const_iterator begin() const {
+			return const_iterator(tree_.minimum(tree_.getRoot()));
+		}
 
 		iterator end() {
 			return iterator(NULL);
 		}
 
-		//TODO:
-		//const_iterator end() const;
+		const_iterator end() const {
+			return const_iterator(NULL);
+		}
 
 		//TODO:
 		//reverse_iterator rbegin();
@@ -221,40 +224,73 @@ class map
 		/* OPERATIONS */
 
 		iterator find(const key_type& k) {
-			return this->tree_.findByKey(k);
+			return iterator(this->tree_.findByKey(k));
 		}
 
-		//TODO:
-		//const_iterator find(const key_type& k) const;
 
-		//FIXME: el prototipo tiene const
-		size_type count(const key_type& k) {
-			iterator found = this->tree_.findByKey(k);
+		const_iterator find(const key_type& k) const {
+			return const_iterator(this->tree_.findByKey(k));
+		}
+
+		size_type count(const key_type& k) const {
+			const_iterator found = this->tree_.findByKey(k);
 
 			if (found != this->end())
 				return 1;
 			return 0;
 		}
 
-		//TODO:
 		iterator lower_bound(const key_type& k) {
-			return this->tree_.lower_bound(k);
+			
+			iterator it = this->begin();
+			iterator end = this->end();
+
+			while (it != end) {
+				if ((*it).first >= k)
+					break ;
+				it++;
+			}
+
+			return it;
 		}
 
-		//TODO:
-		//const_iterator lower_bound(const key_type& k) const;
+		const_iterator lower_bound(const key_type& k) const {
+			return const_iterator(this->lower_bound(k));
+		}
 
-		//TODO:
-		iterator upper_bound(const key_type& k);
+		
+		const_iterator upper_bound(const key_type& k) const {
+			return const_iterator(this->upper_bound(k));
+		}
 
-		//TODO:
-		//const_iterator upper_bound(const key_type& k) const;
+		iterator upper_bound(const key_type& k) {
+			iterator it = this->begin();
+			iterator end = this->end();
 
-		//TODO:
-		//pair<const_iterator,const_iterator>equal_range(const key_type& k) const;
+			while (it != end) {
+				if ((*it).first > k)
+					break ;
+				it++;
+			}
 
-		//TODO:
-		pair<iterator,iterator>equal_range(const key_type& k);
+			return it;
+		}
+
+
+		std::pair<iterator,iterator> equal_range(const key_type& k)  {
+			iterator it_lower_bound = this->lower_bound(k);
+			iterator it_upper_bound = this->upper_bound(k);
+
+			return std::make_pair(it_lower_bound, it_upper_bound);
+		}
+		
+		pair<const_iterator, const_iterator>equal_range(const key_type& k) const {
+			const_iterator it_lower_bound = this->lower_bound(k);
+			const_iterator it_upper_bound = this->upper_bound(k);
+
+			return std::make_pair(it_lower_bound, it_upper_bound);
+		}
+
 
 		/* ALLOCATOR */
 		allocator_type get_allocator() const {
