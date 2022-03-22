@@ -1,33 +1,43 @@
 #pragma once
 
+#include "tree.hpp"
 
 namespace ft
 {
 
-template<class Node, class Compare>
+template<class T, class Node, class Compare>
 	class tree_iterator : ft::iterator<std::bidirectional_iterator_tag, Node> {
 		public:
-			typedef const typename Node::value_type value_type;
+			typedef T value_type;
 			typedef typename ft::iterator<std::bidirectional_iterator_tag, Node>::value_type			node_type;
 			typedef typename ft::iterator<std::bidirectional_iterator_tag, Node>::difference_type		difference_type;
 			typedef typename ft::iterator<std::bidirectional_iterator_tag, Node>::iterator_category		iterator_category;
-			typedef Node*		pointer;
-			typedef Node&		reference;
- 
+
+			//FIXME: Esto tiene que ser privado
+			typedef RedBlackTree<value_type, Node, Compare> tree;
+			typedef Node*		node_pointer;
+			typedef Node&		node_reference;
+
+			typedef T*		pointer;
+			typedef T&		reference;
+			
 			tree_iterator(const Compare comp = Compare()) : comp_(comp)
 			{
 				this->_elemPtr = NULL;
+				this->tree_ptr_ = NULL;
 			}
 
-			tree_iterator(Node *ptr, const Compare comp = Compare()) : comp_(comp), last_(NULL)
+			tree_iterator(Node *ptr, tree *tree_ptr, const Compare comp = Compare()) : comp_(comp)
 			{
 				this->_elemPtr = ptr;
+				this->tree_ptr_ = tree_ptr;
 			}
 
-			template <class T, class U>
-			tree_iterator<T, U>(const tree_iterator<U, T> &it)
+			template <class U, class V, class X>
+			tree_iterator<U, V, X>(const tree_iterator<U, V, X> &it)
 			{
 				this->_elemPtr = it.base();
+				this->tree_ptr_ = it.tree_ptr_;
 			}
 
 			virtual ~tree_iterator() {}
@@ -38,27 +48,23 @@ template<class Node, class Compare>
 					return *this;
 
 				this->_elemPtr = it._elemPtr;
+				this->tree_ptr_ = it.tree_ptr_;
 				return *this;
 			}
 
-			pointer base() const
+			node_pointer base() const
 			{
 				return this->_elemPtr;
 			}
 
 			/* ACCESS OPERATORS*/
 
-			value_type &operator*()
+			reference &operator*() const
 			{
 				return this->_elemPtr->data;
 			}
 
-			value_type &operator*() const
-			{
-				return this->_elemPtr->data;
-			}
-
-			pointer operator->()
+			pointer operator->() const
 			{
 				return this->_elemPtr;
 			}
@@ -66,17 +72,19 @@ template<class Node, class Compare>
 			/* OPERATIONS OPERATORS*/
 			tree_iterator &operator++()
 			{
+				Node *p;
+
 				if (!this->_elemPtr->right->isEmpty()) {
 					this->_elemPtr = this->_elemPtr->right;
 					while (!this->_elemPtr->left->isEmpty())
 						this->_elemPtr = this->_elemPtr->left;
 				} else {
-					Node *p = this->_elemPtr->parent;
+					p = this->_elemPtr->parent;
 					while (p != NULL && this->_elemPtr == p->right) {
 						this->_elemPtr = p;
 						p = p->parent;
 					}
-					this->_elemPtr = p;
+        			this->_elemPtr = p;
 				}
 
 				return *this;
@@ -91,6 +99,11 @@ template<class Node, class Compare>
 			
 			tree_iterator &operator--()
 			{
+				if (this->_elemPtr == NULL) {
+					this->_elemPtr = this->tree_ptr_->maximum();
+					return *this;
+				}
+
 				if (!this->_elemPtr->left->isEmpty()) {
 					this->_elemPtr = this->_elemPtr->left;
 					while (!this->_elemPtr->right->isEmpty())
@@ -121,10 +134,9 @@ template<class Node, class Compare>
 
 		private:
 			Node *_elemPtr;
-			Node *last_;
 			Compare comp_;
+			tree *tree_ptr_;
 			
 	};
-
 
 }

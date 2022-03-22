@@ -207,7 +207,7 @@ namespace ft
 
 		reference operator*() const
 		{
-			iterator_type tmp = this->_base_iterator;
+			iterator_type tmp(this->_base_iterator);
 			return *(--tmp);
 		}
 		

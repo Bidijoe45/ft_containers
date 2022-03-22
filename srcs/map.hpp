@@ -20,13 +20,14 @@ class map
 		typedef typename allocator_type::const_reference const_reference;
 		typedef typename allocator_type::pointer pointer;
 		typedef typename allocator_type::const_pointer const_pointer;
-		typedef ft::Node<value_type> Node;
-		typedef ft::tree_iterator<Node, Compare> iterator;
-		typedef ft::tree_iterator<const Node, Compare> const_iterator;
-		//typedef ft::reverse_iterator<ft::tree_iterator<T> > reverse_iterator;
-		//typedef ft::reverse_iterator<ft::tree_iterator<const T> > const_reverse_iterator;
+		typedef ft::Node<value_type> node;
+		typedef ft::tree_iterator<value_type, node, Compare> iterator;
+		typedef ft::tree_iterator<const value_type, node, Compare> const_iterator;
+		typedef ft::reverse_iterator<iterator> reverse_iterator;
+		typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 		typedef typename ft::iterator_traits<iterator> difference_type;
 		typedef std::size_t size_type;
+		typedef RedBlackTree<value_type, node, key_compare> tree;
 
 		class value_compare : std::binary_function<value_type, value_type, bool>
 		{
@@ -78,35 +79,37 @@ class map
 		}
 
 		/* ITERATORS */
-		
 		iterator begin() {
-			return iterator(tree_.minimum(tree_.getRoot()));
+			return iterator(tree_.minimum(tree_.getRoot()), &this->tree_);
 		}
-		
 
 		const_iterator begin() const {
-			return const_iterator(tree_.minimum(tree_.getRoot()));
+			return const_iterator(tree_.minimum(tree_.getRoot()), &this->tree_);
 		}
 
 		iterator end() {
-			return iterator(NULL);
+			return iterator(NULL, &this->tree_);
 		}
 
 		const_iterator end() const {
-			return const_iterator(NULL);
+			return const_iterator(NULL, &this->tree_);
 		}
 
-		//TODO:
-		//reverse_iterator rbegin();
+		reverse_iterator rbegin() {
+			return reverse_iterator(this->end());
+		}
 
-		//TODO:
-		//const_reverse_iterator rbegin() const;
+		const_reverse_iterator rbegin() const {
+			return const_reverse_iterator(this->end());
+		}
 		
-		//TODO:
-		//reverse_iterator rend();
+		reverse_iterator rend() {
+			return reverse_iterator(this->begin());	
+		}
 
-		//TODO:
-		//const_reverse_iterator rend() const;
+		const_reverse_iterator rend() const {
+			return reverse_iterator(this->begin());
+		}
 
 		/* CAPACITY */
 		bool empty() const {
@@ -122,26 +125,26 @@ class map
 		}
 
 		/* ELEMENT ACCESSS */
-
 		mapped_type& operator[] (const key_type& k) {
-			std::pair<iterator, bool> insert = this->tree_.insert(std::make_pair(k, mapped_type()));
+			std::pair<node *, bool> insert = this->tree_.insert(std::make_pair(k, mapped_type()));
 
-			return (*(insert.first)).second;
+			return insert.first->data.second;
 		}
 
 		/* MODIFIERS */
-
 		std::pair<iterator, bool> insert(const value_type& val) {
-			std::pair<iterator, bool> insert = this->tree_.insert(val);
+			std::pair<node *, bool> insert = this->tree_.insert(val);
+			iterator it(insert.first, &this->tree_);
 
 			if (insert.second)
 				this->size_++;
 
-			return insert;
+			return std::make_pair(it, insert.second);
 		}
 
+		//FIXME:
 		iterator insert(iterator position, const value_type& val) {
-			std::pair<iterator, bool> insert = this->tree_.insertWithHint(position, val);
+			std::pair<iterator, bool> insert = this->tree_.insertWithHint(position.base(), val);
 
 			if (insert.second)
 				this->size_++;
@@ -199,7 +202,7 @@ class map
 		void swap (map& x) {
 			allocator_type tmp_alloc = this->get_allocator();
 			size_type tmp_size = this->size();
-			RedBlackTree<value_type, Node, key_compare> tmp_tree(this->tree_);
+			tree tmp_tree(this->tree_);
 
 			this->allocator_ = x.get_allocator();
 			this->size_ = x.size();
@@ -302,7 +305,7 @@ class map
 		}
 
 	private:
-		RedBlackTree<value_type, Node, key_compare> tree_;
+		tree tree_;
 		size_type size_;
 		allocator_type allocator_;
 		key_compare comp_;

@@ -4,8 +4,6 @@
 
 #include <utility>
 
-#include "./tree_iterator.hpp"
-
 namespace ft
 {
 
@@ -43,7 +41,6 @@ class RedBlackTree
 
 public:
 	typedef T value_type;
-	typedef ft::tree_iterator<Node, Compare> iterator;
 	typedef Compare key_compare;
 
 	//FIXME: usar allocator
@@ -64,7 +61,6 @@ public:
 		return *this;
 	}
 
-
 	//TODO:
 	~RedBlackTree() {
 
@@ -78,9 +74,9 @@ public:
 		return node;
 	}
 
-	const Node *minimum(Node *node) const 
+	Node *minimum()
 	{
-		return this->minimum(node);
+		return this->minimum(this->root_);
 	}
 
 	Node *maximum(Node *node)
@@ -91,10 +87,11 @@ public:
 		return node;
 	}
 
-	const Node *maximum(Node *node) const
+	Node *maximum()
 	{
-		return this->maximum(node);
+		return this->maximum(this->root_);
 	}
+
 
 	void leftRotate(Node *x)
 	{
@@ -193,7 +190,7 @@ public:
 	}
 	*/
 
-	std::pair<iterator, bool> insert(const value_type &data)
+	std::pair<Node *, bool> insert(const value_type &data)
 	{
 		Node *new_node;
 		Node *current_node;
@@ -203,7 +200,7 @@ public:
 			new_node = createNewNode(data);
 			this->root_ = new_node;
 			new_node->color = BLACK;
-			return std::make_pair(iterator(new_node), true);
+			return std::make_pair(new_node, true);
 		}
 
 		current_node = this->root_;
@@ -211,7 +208,7 @@ public:
 			last_node = current_node;
 
 			if (data.first == current_node->data.first) {
-				return std::make_pair(iterator(current_node), false);
+				return std::make_pair(current_node, false);
 			}
 			else if (data.first < current_node->data.first) {
 				current_node = current_node->left;
@@ -231,10 +228,11 @@ public:
 		}
 		
 		insertFix(new_node);
-		return std::make_pair(iterator(new_node), true);
+		return std::make_pair(new_node, true);
 	}
 
-	std::pair<iterator, bool> insertWithHint(iterator position, const value_type &data)
+	//FIXME:
+	std::pair<iterator, bool> insertWithHint(Node *nodeHint, const value_type &data)
 	{
 		Node *new_node;
 		Node *current_node;
@@ -248,10 +246,10 @@ public:
 			return std::make_pair(iterator(new_node), true);
 		}
 
-		correct_hint = checkHint(position, data);
+		correct_hint = checkHint(nodeHint, data);
 
 		if (correct_hint)
-			current_node = position.base();
+			current_node =nodeHint;
 		else
 			current_node = this->root_;
 		
@@ -552,7 +550,8 @@ private:
 		root_->color = BLACK;
 	}
 
-	bool checkHint(iterator position, const value_type &data) {
+
+	bool checkHint(Node *position, const value_type &data) {
 		iterator next_position = position;
 
 		next_position++;
@@ -562,6 +561,7 @@ private:
 
 		return false;
 	}
+
 
 	Node *root_;
 	Allocator allocator_;
