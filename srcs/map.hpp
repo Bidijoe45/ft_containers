@@ -142,14 +142,13 @@ class map
 			return std::make_pair(it, insert.second);
 		}
 
-		//FIXME:
 		iterator insert(iterator position, const value_type& val) {
-			std::pair<iterator, bool> insert = this->tree_.insertWithHint(position.base(), val);
+			std::pair<node *, bool> insert = this->tree_.insertWithHint(position.base(), val);
 
 			if (insert.second)
 				this->size_++;
 
-			return insert.first;
+			return iterator(insert.first);
 		}
 
 		template<class InputIterator>

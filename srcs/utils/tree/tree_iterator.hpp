@@ -72,21 +72,8 @@ template<class T, class Node, class Compare>
 			/* OPERATIONS OPERATORS*/
 			tree_iterator &operator++()
 			{
-				Node *p;
-
-				if (!this->_elemPtr->right->isEmpty()) {
-					this->_elemPtr = this->_elemPtr->right;
-					while (!this->_elemPtr->left->isEmpty())
-						this->_elemPtr = this->_elemPtr->left;
-				} else {
-					p = this->_elemPtr->parent;
-					while (p != NULL && this->_elemPtr == p->right) {
-						this->_elemPtr = p;
-						p = p->parent;
-					}
-        			this->_elemPtr = p;
-				}
-
+				this->_elemPtr = this->tree_ptr_->next(this->_elemPtr);
+				
 				return *this;
 			}
 
@@ -99,23 +86,7 @@ template<class T, class Node, class Compare>
 			
 			tree_iterator &operator--()
 			{
-				if (this->_elemPtr == NULL) {
-					this->_elemPtr = this->tree_ptr_->maximum();
-					return *this;
-				}
-
-				if (!this->_elemPtr->left->isEmpty()) {
-					this->_elemPtr = this->_elemPtr->left;
-					while (!this->_elemPtr->right->isEmpty())
-						this->_elemPtr = this->_elemPtr->right;
-				} else {
-					Node *p = this->_elemPtr->parent;
-					while (p != NULL && this->_elemPtr == p->left) {
-						this->_elemPtr = p;
-						p = p->parent;
-					}
-					this->_elemPtr = p;
-				}
+				this->_elemPtr = this->tree_ptr_->prev(this->_elemPtr);
 
 				return *this;
 			}

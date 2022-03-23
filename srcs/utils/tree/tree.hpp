@@ -232,7 +232,8 @@ public:
 	}
 
 	//FIXME:
-	std::pair<iterator, bool> insertWithHint(Node *nodeHint, const value_type &data)
+	
+	std::pair<Node *, bool> insertWithHint(Node *nodeHint, const value_type &data)
 	{
 		Node *new_node;
 		Node *current_node;
@@ -243,13 +244,13 @@ public:
 			new_node = createNewNode(data);
 			this->root_ = new_node;
 			new_node->color = BLACK;
-			return std::make_pair(iterator(new_node), true);
+			return std::make_pair(new_node, true);
 		}
 
 		correct_hint = checkHint(nodeHint, data);
 
 		if (correct_hint)
-			current_node =nodeHint;
+			current_node = nodeHint;
 		else
 			current_node = this->root_;
 		
@@ -257,7 +258,7 @@ public:
 			last_node = current_node;
 
 			if (data.first == current_node->data.first) {
-				return std::make_pair(iterator(current_node), false);
+				return std::make_pair(current_node, false);
 			}
 			else if (data.first < current_node->data.first) {
 				current_node = current_node->left;
@@ -277,8 +278,9 @@ public:
 		}
 		
 		insertFix(new_node);
-		return std::make_pair(iterator(new_node), true);
+		return std::make_pair(new_node, true);
 	}
+
 
 	bool deleteNode(typename value_type::first_type &key) {
 		return deleteNodeHelper(this->root_, key);
@@ -329,6 +331,51 @@ public:
 
 		return NULL;
 	}
+
+	Node *next(Node *node) {
+		
+		Node *p;
+
+		if (!node->right->isEmpty()) {
+			node = node->right;
+			while (!node->left->isEmpty())
+				node = node->left;
+		} else {
+			p = node->parent;
+			while (p != NULL && node == p->right) {
+				node = p;
+				p = p->parent;
+			}
+			node = p;
+		}
+
+		return node;
+	}
+
+	Node *prev(Node *node) {
+		Node *p;
+
+		if (node == NULL) {
+			node = this->maximum();
+			return node;
+		}
+
+		if (!node->left->isEmpty()) {
+			node = node->left;
+			while (!node->right->isEmpty())
+				node = node->right;
+		} else {
+			p = node->parent;
+			while (p != NULL && node == p->left) {
+				node = p;
+				p = p->parent;
+			}
+			node = p;
+		}
+
+		return node;	
+	}
+
 
 private:
 
@@ -550,17 +597,16 @@ private:
 		root_->color = BLACK;
 	}
 
+	
+	bool checkHint(Node *node, const value_type &data) {
+		Node *next_node = this->next(node);
 
-	bool checkHint(Node *position, const value_type &data) {
-		iterator next_position = position;
-
-		next_position++;
-
-		if ((*position).first < data.first &&  data.first < (*next_position).first)
+		if (node->data.first < data.first &&  data.first < node->data.first)
 			return true;
 
 		return false;
 	}
+
 
 
 	Node *root_;
