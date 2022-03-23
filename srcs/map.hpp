@@ -13,21 +13,19 @@ class map
 	public:
 		typedef Key key_type;
 		typedef T mapped_type;
-		typedef std::pair<const key_type, mapped_type> value_type;
+		typedef ft::pair<const key_type, mapped_type> value_type;
 		typedef Compare key_compare;
 		typedef Allocator allocator_type;
 		typedef typename allocator_type::reference reference;
 		typedef typename allocator_type::const_reference const_reference;
 		typedef typename allocator_type::pointer pointer;
 		typedef typename allocator_type::const_pointer const_pointer;
-		typedef ft::Node<value_type> node;
-		typedef ft::tree_iterator<value_type, node, Compare> iterator;
-		typedef ft::tree_iterator<const value_type, node, Compare> const_iterator;
+		typedef ft::tree_iterator<value_type, ft::Node<value_type>, Compare> iterator;
+		typedef ft::tree_iterator<const value_type, ft::Node<value_type>, Compare> const_iterator;
 		typedef ft::reverse_iterator<iterator> reverse_iterator;
 		typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 		typedef typename ft::iterator_traits<iterator> difference_type;
 		typedef std::size_t size_type;
-		typedef RedBlackTree<value_type, node, key_compare> tree;
 
 		class value_compare : std::binary_function<value_type, value_type, bool>
 		{
@@ -126,24 +124,24 @@ class map
 
 		/* ELEMENT ACCESSS */
 		mapped_type& operator[] (const key_type& k) {
-			std::pair<node *, bool> insert = this->tree_.insert(std::make_pair(k, mapped_type()));
+			ft::pair<ft::Node<value_type> *, bool> insert = this->tree_.insert(ft::make_pair(k, mapped_type()));
 
 			return insert.first->data.second;
 		}
 
 		/* MODIFIERS */
-		std::pair<iterator, bool> insert(const value_type& val) {
-			std::pair<node *, bool> insert = this->tree_.insert(val);
+		ft::pair<iterator, bool> insert(const value_type& val) {
+			ft::pair<ft::Node<value_type> *, bool> insert = this->tree_.insert(val);
 			iterator it(insert.first, &this->tree_);
 
 			if (insert.second)
 				this->size_++;
 
-			return std::make_pair(it, insert.second);
+			return ft::make_pair(it, insert.second);
 		}
 
 		iterator insert(iterator position, const value_type& val) {
-			std::pair<node *, bool> insert = this->tree_.insertWithHint(position.base(), val);
+			ft::pair<ft::Node<value_type> *, bool> insert = this->tree_.insertWithHint(position.base(), val);
 
 			if (insert.second)
 				this->size_++;
@@ -153,7 +151,7 @@ class map
 
 		template<class InputIterator>
 		void insert(typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last ) {
-			std::pair<iterator, bool> insert;
+			ft::pair<iterator, bool> insert;
 
 			while (first != last) {
 				
@@ -201,7 +199,7 @@ class map
 		void swap (map& x) {
 			allocator_type tmp_alloc = this->get_allocator();
 			size_type tmp_size = this->size();
-			tree tmp_tree(this->tree_);
+			RedBlackTree<value_type, ft::Node<value_type>, key_compare> tmp_tree(this->tree_);
 
 			this->allocator_ = x.get_allocator();
 			this->size_ = x.size();
@@ -279,18 +277,18 @@ class map
 		}
 
 
-		std::pair<iterator,iterator> equal_range(const key_type& k)  {
+		ft::pair<iterator,iterator> equal_range(const key_type& k)  {
 			iterator it_lower_bound = this->lower_bound(k);
 			iterator it_upper_bound = this->upper_bound(k);
 
-			return std::make_pair(it_lower_bound, it_upper_bound);
+			return ft::make_pair(it_lower_bound, it_upper_bound);
 		}
 		
 		pair<const_iterator, const_iterator>equal_range(const key_type& k) const {
 			const_iterator it_lower_bound = this->lower_bound(k);
 			const_iterator it_upper_bound = this->upper_bound(k);
 
-			return std::make_pair(it_lower_bound, it_upper_bound);
+			return ft::make_pair(it_lower_bound, it_upper_bound);
 		}
 
 
@@ -304,7 +302,8 @@ class map
 		}
 
 	private:
-		tree tree_;
+		
+		RedBlackTree<value_type, ft::Node<value_type>, key_compare> tree_;
 		size_type size_;
 		allocator_type allocator_;
 		key_compare comp_;

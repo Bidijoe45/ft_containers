@@ -1,5 +1,7 @@
+#pragma once
 
 namespace ft {
+
 
 template <class T1, class T2> struct pair
 {
@@ -8,20 +10,25 @@ template <class T1, class T2> struct pair
 		typedef T1 first_type;
 		typedef T2 second_type;
 		first_type first;
-		first_type second;
+		second_type second;
+		
+		pair() : first(), second() { }
 
-		pair() : first(first_type()), second(second_type()) { }
-
-		pair(const first_type &a, const second_type &b) : first(a), second(b){
-		}
+		pair(const first_type &a, const second_type &b) : first(a), second(b) {}
 
 		template <class U, class V>
 		pair(const pair<U, V> &pr) : first(pr.first), second(pr.second) {}
 
 		pair &operator=(const pair &pr) {
-			this->second = pr.second;
-		}
+			if (pr == *this) {
+				return this;
+			}
 
+			this->first = pr.first;
+			this->second = pr.second;
+
+			return this;
+		}
 };
 
 template <class T1, class T2>

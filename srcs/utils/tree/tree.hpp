@@ -1,8 +1,8 @@
 #pragma once
 #include <cstddef>
 #include <iostream>
-
 #include <utility>
+#include "../pair.hpp"
 
 namespace ft
 {
@@ -142,55 +142,7 @@ public:
 		x->parent = y;
 	}
 
-	//FIXME: BORRAR ESTO antes de subir
-	/*
-	std::pair<iterator, bool> insert2(const value_type &data)
-	{
-		Node *node = this->allocator_.allocate(1);
-		this->allocator_.construct(node, Node(data));
-		node->parent = NULL;
-		node->left = emptyNode_;
-		node->right = emptyNode_;
-		node->color = RED;
-
-		Node *y = NULL;
-		Node *x = this->root_;
-
-		while (x != emptyNode_) {
-			y = x;
-			if (node->data.first < x->data.first) {
-				x = x->left;
-			} else {
-				x = x->right;
-			}
-		}
-
-		node->parent = y;
-		if (y == NULL) {
-			root_ = node;
-		}
-		else if (node->data.first < y->data.first) {
-			y->left = node;
-		}
-		else {
-			y->right = node;
-		}
-
-		if (node->parent == NULL) {
-			node->color = BLACK;
-			return std::make_pair(iterator(node), true);
-		}
-
-		if (node->parent->parent == NULL) {
-			return std::make_pair(iterator(node), true);
-		}
-
-		insertFix(node);
-		return std::make_pair(iterator(node), true);
-	}
-	*/
-
-	std::pair<Node *, bool> insert(const value_type &data)
+	ft::pair<Node *, bool> insert(const value_type &data)
 	{
 		Node *new_node;
 		Node *current_node;
@@ -200,7 +152,7 @@ public:
 			new_node = createNewNode(data);
 			this->root_ = new_node;
 			new_node->color = BLACK;
-			return std::make_pair(new_node, true);
+			return ft::make_pair(new_node, true);
 		}
 
 		current_node = this->root_;
@@ -208,7 +160,7 @@ public:
 			last_node = current_node;
 
 			if (data.first == current_node->data.first) {
-				return std::make_pair(current_node, false);
+				return ft::make_pair(current_node, false);
 			}
 			else if (data.first < current_node->data.first) {
 				current_node = current_node->left;
@@ -228,12 +180,10 @@ public:
 		}
 		
 		insertFix(new_node);
-		return std::make_pair(new_node, true);
+		return ft::make_pair(new_node, true);
 	}
-
-	//FIXME:
 	
-	std::pair<Node *, bool> insertWithHint(Node *nodeHint, const value_type &data)
+	ft::pair<Node *, bool> insertWithHint(Node *nodeHint, const value_type &data)
 	{
 		Node *new_node;
 		Node *current_node;
@@ -244,7 +194,7 @@ public:
 			new_node = createNewNode(data);
 			this->root_ = new_node;
 			new_node->color = BLACK;
-			return std::make_pair(new_node, true);
+			return ft::make_pair(new_node, true);
 		}
 
 		correct_hint = checkHint(nodeHint, data);
@@ -258,7 +208,7 @@ public:
 			last_node = current_node;
 
 			if (data.first == current_node->data.first) {
-				return std::make_pair(current_node, false);
+				return ft::make_pair(current_node, false);
 			}
 			else if (data.first < current_node->data.first) {
 				current_node = current_node->left;
@@ -278,7 +228,7 @@ public:
 		}
 		
 		insertFix(new_node);
-		return std::make_pair(new_node, true);
+		return ft::make_pair(new_node, true);
 	}
 
 
