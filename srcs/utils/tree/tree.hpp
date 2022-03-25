@@ -66,7 +66,7 @@ public:
 
 	}
 
-	Node *minimum(Node *node)
+	Node *minimum(Node *node) const
 	{
 		while (!node->left->isEmpty()) {
 			node = node->left;
@@ -74,24 +74,13 @@ public:
 		return node;
 	}
 
-	Node *minimum()
-	{
-		return this->minimum(this->root_);
-	}
-
-	Node *maximum(Node *node)
+	Node *maximum(Node *node) const
 	{
 		while (!node->right->isEmpty()) {
 			node = node->right;
 		}
 		return node;
 	}
-
-	Node *maximum()
-	{
-		return this->maximum(this->root_);
-	}
-
 
 	void leftRotate(Node *x)
 	{
@@ -251,7 +240,10 @@ public:
 				indent += "|  ";
 			}
 			
-			std::cout << "[" << root->data.first <<"] " << root->data.second << "(" << (root->color == RED ? "RED" : "BLACK") << ")" << std::endl;
+			std::cout	<< "[" << root->data.first <<"] " 
+						<< root->data.second << "("
+						<< (root->color == RED ? "RED" : "BLACK") << ")"
+						<< std::endl;
 			printHelper(root->left, indent, false);
 			printHelper(root->right, indent, true);
 		}
@@ -547,7 +539,6 @@ private:
 		root_->color = BLACK;
 	}
 
-	
 	bool checkHint(Node *node, const value_type &data) {
 		Node *next_node = this->next(node);
 
@@ -556,8 +547,6 @@ private:
 
 		return false;
 	}
-
-
 
 	Node *root_;
 	Allocator allocator_;

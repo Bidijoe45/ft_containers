@@ -4,6 +4,9 @@
 #include "utils/iterator.hpp"
 #include "utils/tree/tree.hpp"
 #include "utils/tree/tree_iterator.hpp"
+#include "utils/enable_if_traits.hpp"
+#include "utils/is_integral_traits.hpp"
+
 
 namespace ft {
 
@@ -20,8 +23,8 @@ class map
 		typedef typename allocator_type::const_reference const_reference;
 		typedef typename allocator_type::pointer pointer;
 		typedef typename allocator_type::const_pointer const_pointer;
-		typedef ft::tree_iterator<value_type, ft::Node<value_type>, Compare> iterator;
-		typedef ft::tree_iterator<const value_type, ft::Node<value_type>, Compare> const_iterator;
+		typedef ft::tree_iterator<value_type, ft::Node<value_type>, RedBlackTree<value_type, ft::Node<value_type>, key_compare> > iterator;
+		typedef ft::tree_iterator<const value_type, ft::Node<value_type>, RedBlackTree<value_type, ft::Node<value_type>, key_compare> > const_iterator;
 		typedef ft::reverse_iterator<iterator> reverse_iterator;
 		typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 		typedef typename ft::iterator_traits<iterator> difference_type;
@@ -50,6 +53,7 @@ class map
 			this->allocator_ = alloc;
 			this->size_ = 0;
 			this->comp_ = comp;
+			this->tree_ = new RedBlackTree<value_type, ft::Node<value_type>, key_compare>();
 		}
 
 		template <class InputIterator>
@@ -58,6 +62,7 @@ class map
 		{
 			this->allocator_ = alloc;
 			this->comp_ = comp;
+			this->tree_ = new RedBlackTree<value_type, ft::Node<value_type>, key_compare>();
 
 			while (first != last) {
 				this->insert(*first);
@@ -68,6 +73,7 @@ class map
 		map(const map& x) {
 			this->allocator_ = x.get_allocator();
 			this->comp_ = map::key_compare();
+			
 			this->insert(x.begin(), x.end());
 		}
 
@@ -78,19 +84,19 @@ class map
 
 		/* ITERATORS */
 		iterator begin() {
-			return iterator(tree_.minimum(tree_.getRoot()), &this->tree_);
+			return iterator(tree_->minimum(tree_->getRoot()), this->tree_);
 		}
 
 		const_iterator begin() const {
-			return const_iterator(tree_.minimum(tree_.getRoot()), &this->tree_);
+			return const_iterator(tree_->minimum(tree_->getRoot()), this->tree_);
 		}
 
 		iterator end() {
-			return iterator(NULL, &this->tree_);
+			return iterator(NULL, this->tree_);
 		}
 
 		const_iterator end() const {
-			return const_iterator(NULL, &this->tree_);
+			return const_iterator(NULL, this->tree_);
 		}
 
 		reverse_iterator rbegin() {
@@ -124,15 +130,15 @@ class map
 
 		/* ELEMENT ACCESSS */
 		mapped_type& operator[] (const key_type& k) {
-			ft::pair<ft::Node<value_type> *, bool> insert = this->tree_.insert(ft::make_pair(k, mapped_type()));
+			ft::pair<ft::Node<value_type> *, bool> insert = this->tree_->insert(ft::make_pair(k, mapped_type()));
 
 			return insert.first->data.second;
 		}
 
 		/* MODIFIERS */
 		ft::pair<iterator, bool> insert(const value_type& val) {
-			ft::pair<ft::Node<value_type> *, bool> insert = this->tree_.insert(val);
-			iterator it(insert.first, &this->tree_);
+			ft::pair<ft::Node<value_type> *, bool> insert = this->tree_->insert(val);
+			iterator it(insert.first, this->tree_);
 
 			if (insert.second)
 				this->size_++;
@@ -141,7 +147,7 @@ class map
 		}
 
 		iterator insert(iterator position, const value_type& val) {
-			ft::pair<ft::Node<value_type> *, bool> insert = this->tree_.insertWithHint(position.base(), val);
+			ft::pair<ft::Node<value_type> *, bool> insert = this->tree_->insertWithHint(position.base(), val);
 
 			if (insert.second)
 				this->size_++;
@@ -155,7 +161,7 @@ class map
 
 			while (first != last) {
 				
-				insert = this->tree_.insert(*first);
+				insert = this->tree_->insert(*first);
 
 				if (insert.second)
 					this->size_++;
@@ -166,14 +172,14 @@ class map
 
 		void erase (typename ft::enable_if<!ft::is_integral<iterator>::value, iterator>::type position) {
 			key_type key = (*position).first;
-			bool deleted = this->tree_.deleteNode(key);
+			bool deleted = this->tree_->deleteNode(key);
 
 			if (deleted)
 				this->size_--;
 		}
 
 		size_type erase (const key_type& k) {
-			bool deleted = this->tree_.deleteNode(k);
+			bool deleted = this->tree_->deleteNode(k);
 
 			if (deleted) {
 				this->size_--;
@@ -189,7 +195,7 @@ class map
 			while (first != last) {
 				key = (*first).first;
 
-				deleted = this->tree_.deleteNode(key);
+				deleted = this->tree_->deleteNode(key);
 				if (deleted)
 					this->size_--;
 				first++;
@@ -224,16 +230,16 @@ class map
 		/* OPERATIONS */
 
 		iterator find(const key_type& k) {
-			return iterator(this->tree_.findByKey(k));
+			return iterator(this->tree_->findByKey(k));
 		}
 
 
 		const_iterator find(const key_type& k) const {
-			return const_iterator(this->tree_.findByKey(k));
+			return const_iterator(this->tree_->findByKey(k));
 		}
 
 		size_type count(const key_type& k) const {
-			const_iterator found = this->tree_.findByKey(k);
+			const_iterator found = this->tree_->findByKey(k);
 
 			if (found != this->end())
 				return 1;
@@ -298,12 +304,12 @@ class map
 		}
 
 		void printTree() {
-			tree_.printTree();
+			tree_->printTree();
 		}
 
 	private:
 		
-		RedBlackTree<value_type, ft::Node<value_type>, key_compare> tree_;
+		RedBlackTree<value_type, ft::Node<value_type>, key_compare> *tree_;
 		size_type size_;
 		allocator_type allocator_;
 		key_compare comp_;
