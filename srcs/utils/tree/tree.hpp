@@ -298,7 +298,7 @@ public:
 		Node *p;
 
 		if (node == NULL) {
-			node = this->maximum();
+			node = this->maximum(this->getRoot());
 			return node;
 		}
 

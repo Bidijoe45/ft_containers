@@ -23,8 +23,10 @@ class map
 		typedef typename allocator_type::const_reference const_reference;
 		typedef typename allocator_type::pointer pointer;
 		typedef typename allocator_type::const_pointer const_pointer;
-		typedef ft::tree_iterator<value_type, ft::Node<value_type>, RedBlackTree<value_type, ft::Node<value_type>, key_compare> > iterator;
-		typedef ft::tree_iterator<const value_type, ft::Node<value_type>, RedBlackTree<value_type, ft::Node<value_type>, key_compare> > const_iterator;
+		typedef ft::Node<value_type> Node;
+		typedef ft::RedBlackTree<value_type, Node, key_compare> Tree;
+		typedef ft::tree_iterator<value_type, Node, Tree> iterator;
+		typedef ft::tree_iterator<const value_type, Node, Tree> const_iterator;
 		typedef ft::reverse_iterator<iterator> reverse_iterator;
 		typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 		typedef typename ft::iterator_traits<iterator> difference_type;
@@ -50,19 +52,28 @@ class map
 		/* CONSTRUCTORS */
 		explicit map(const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
 		{
+			typename allocator_type::template rebind<Tree>::other tree_allocator;
+
 			this->allocator_ = alloc;
 			this->size_ = 0;
 			this->comp_ = comp;
-			this->tree_ = new RedBlackTree<value_type, ft::Node<value_type>, key_compare>();
+
+			this->tree_ = tree_allocator.allocate(1);
+			tree_allocator.construct(this->tree_, Tree());
 		}
 
 		template <class InputIterator>
   		map(typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last,
 		  	const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
-		{
+		{	
+			typename allocator_type::template rebind<Tree>::other tree_allocator;
+
 			this->allocator_ = alloc;
+			this->size_ = 0;
 			this->comp_ = comp;
-			this->tree_ = new RedBlackTree<value_type, ft::Node<value_type>, key_compare>();
+			
+			this->tree_ = tree_allocator.allocate(1);
+			tree_allocator.construct(this->tree_, Tree());
 
 			while (first != last) {
 				this->insert(*first);
@@ -70,11 +81,16 @@ class map
 			}
 		}
 
-		map(const map& x) {
-			this->allocator_ = x.get_allocator();
+		map(const map& m) {
+			typename allocator_type::template rebind<Tree>::other tree_allocator;
+
+			this->allocator_ = m.get_allocator();
 			this->comp_ = map::key_compare();
+
+			this->tree_ = tree_allocator.allocate(1);
+			tree_allocator.construct(this->tree_, Tree());
 			
-			this->insert(x.begin(), x.end());
+			this->insert(m.begin(), m.end());
 		}
 
 		//TODO:
@@ -117,7 +133,7 @@ class map
 
 		/* CAPACITY */
 		bool empty() const {
-			return this->size_;
+			return !this->size_;
 		}
 
 		size_type size() const {
@@ -130,14 +146,14 @@ class map
 
 		/* ELEMENT ACCESSS */
 		mapped_type& operator[] (const key_type& k) {
-			ft::pair<ft::Node<value_type> *, bool> insert = this->tree_->insert(ft::make_pair(k, mapped_type()));
+			ft::pair<Node *, bool> insert = this->tree_->insert(ft::make_pair(k, mapped_type()));
 
 			return insert.first->data.second;
 		}
 
 		/* MODIFIERS */
 		ft::pair<iterator, bool> insert(const value_type& val) {
-			ft::pair<ft::Node<value_type> *, bool> insert = this->tree_->insert(val);
+			ft::pair<Node *, bool> insert = this->tree_->insert(val);
 			iterator it(insert.first, this->tree_);
 
 			if (insert.second)
@@ -147,7 +163,7 @@ class map
 		}
 
 		iterator insert(iterator position, const value_type& val) {
-			ft::pair<ft::Node<value_type> *, bool> insert = this->tree_->insertWithHint(position.base(), val);
+			ft::pair<Node *, bool> insert = this->tree_->insertWithHint(position.base(), val);
 
 			if (insert.second)
 				this->size_++;
@@ -157,7 +173,7 @@ class map
 
 		template<class InputIterator>
 		void insert(typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last ) {
-			ft::pair<iterator, bool> insert;
+			ft::pair<Node *, bool> insert;
 
 			while (first != last) {
 				
@@ -171,7 +187,7 @@ class map
 		}
 
 		void erase (typename ft::enable_if<!ft::is_integral<iterator>::value, iterator>::type position) {
-			key_type key = (*position).first;
+			key_type key = (*z).first;
 			bool deleted = this->tree_->deleteNode(key);
 
 			if (deleted)
@@ -205,7 +221,7 @@ class map
 		void swap (map& x) {
 			allocator_type tmp_alloc = this->get_allocator();
 			size_type tmp_size = this->size();
-			RedBlackTree<value_type, ft::Node<value_type>, key_compare> tmp_tree(this->tree_);
+			RedBlackTree<value_type, Node, key_compare> tmp_tree(this->tree_);
 
 			this->allocator_ = x.get_allocator();
 			this->size_ = x.size();
@@ -309,7 +325,7 @@ class map
 
 	private:
 		
-		RedBlackTree<value_type, ft::Node<value_type>, key_compare> *tree_;
+		Tree *tree_;
 		size_type size_;
 		allocator_type allocator_;
 		key_compare comp_;
