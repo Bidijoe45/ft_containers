@@ -21,13 +21,13 @@ template <class T1, class T2> struct pair
 
 		pair &operator=(const pair &pr) {
 			if (pr == *this) {
-				return this;
+				return *this;
 			}
 
 			this->first = pr.first;
 			this->second = pr.second;
 
-			return this;
+			return *this;
 		}
 };
 
