@@ -68,6 +68,8 @@ public:
 
 	Node *minimum(Node *node) const
 	{
+		if (node->isEmpty())
+			return NULL;
 		while (!node->left->isEmpty()) {
 			node = node->left;
 		}
@@ -76,6 +78,8 @@ public:
 
 	Node *maximum(Node *node) const
 	{
+		if (node->isEmpty())
+			return NULL;
 		while (!node->right->isEmpty()) {
 			node = node->right;
 		}
@@ -171,7 +175,7 @@ public:
 		insertFix(new_node);
 		return ft::make_pair(new_node, true);
 	}
-	
+
 	ft::pair<Node *, bool> insertWithHint(Node *nodeHint, const value_type &data)
 	{
 		Node *new_node;
@@ -473,6 +477,7 @@ private:
 			y->left->parent = y;
 			y->color = z->color;
 		}
+		//FIXME: usar allocator para borrar este nodo
 		delete z;
 		if (y_original_color == 0) {
 			deleteFix(x);

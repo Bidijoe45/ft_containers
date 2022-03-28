@@ -108,7 +108,16 @@ template<class T, class Node, class Tree>
 		private:
 			Node *elemPtr_;
 			Tree *treePtr_;
-			
 	};
+
+	template <class T1, class Node1, class Tree1, class T2, class Node2, class Tree2>
+	bool operator==(const tree_iterator<T1, Node1, Tree1>& lhs, const tree_iterator<T2, Node2, Tree2>& rhs) {
+		return lhs.base() == rhs.base();
+	}
+
+	template <class T1, class Node1, class Tree1, class T2, class Node2, class Tree2>
+	bool operator!=(const tree_iterator<T1, Node1, Tree1>& lhs, const tree_iterator<T2, Node2, Tree2>& rhs) {
+		return lhs.base() != rhs.base();
+	}
 
 }

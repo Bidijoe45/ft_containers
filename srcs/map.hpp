@@ -93,6 +93,25 @@ class map
 			this->insert(m.begin(), m.end());
 		}
 
+		map &operator=(const map& m) {
+			if (this == &m)
+				return *this;
+
+			typename allocator_type::template rebind<Tree>::other tree_allocator;
+
+			this->allocator_ = m.get_allocator();
+			this->comp_ = map::key_compare();
+
+			if (this->tree_ != NULL)
+				this->tree_ = tree_allocator.allocate(1);
+			tree_allocator.construct(this->tree_, Tree());
+			
+			this->size_ = 0;
+			this->insert(m.begin(), m.end());
+
+			return *this;
+		}
+
 		//TODO:
 		~map() {
 
@@ -186,15 +205,15 @@ class map
 
 		}
 
-		void erase (typename ft::enable_if<!ft::is_integral<iterator>::value, iterator>::type position) {
-			key_type key = (*z).first;
+		void erase(typename ft::enable_if<!ft::is_integral<iterator>::value, iterator>::type position) {
+			key_type key = (*position).first;
 			bool deleted = this->tree_->deleteNode(key);
 
 			if (deleted)
 				this->size_--;
 		}
 
-		size_type erase (const key_type& k) {
+		size_type erase(const key_type& k) {
 			bool deleted = this->tree_->deleteNode(k);
 
 			if (deleted) {
@@ -204,7 +223,7 @@ class map
 			return 0;
 		}
 
-		void erase (typename ft::enable_if<!ft::is_integral<iterator>::value, iterator>::type first, iterator last) {
+		void erase(typename ft::enable_if<!ft::is_integral<iterator>::value, iterator>::type first, iterator last) {
 			key_type key;
 			bool deleted;
 
@@ -218,7 +237,7 @@ class map
 			}
 		}
 
-		void swap (map& x) {
+		void swap(map& x) {
 			allocator_type tmp_alloc = this->get_allocator();
 			size_type tmp_size = this->size();
 			RedBlackTree<value_type, Node, key_compare> tmp_tree(this->tree_);
@@ -263,7 +282,6 @@ class map
 		}
 
 		iterator lower_bound(const key_type& k) {
-			
 			iterator it = this->begin();
 			iterator end = this->end();
 
@@ -277,12 +295,16 @@ class map
 		}
 
 		const_iterator lower_bound(const key_type& k) const {
-			return const_iterator(this->lower_bound(k));
-		}
+			const_iterator it = this->begin();
+			const_iterator end = this->end();
 
-		
-		const_iterator upper_bound(const key_type& k) const {
-			return const_iterator(this->upper_bound(k));
+			while (it != end) {
+				if ((*it).first >= k)
+					break ;
+				it++;
+			}
+
+			return it;
 		}
 
 		iterator upper_bound(const key_type& k) {
@@ -297,7 +319,19 @@ class map
 
 			return it;
 		}
+		
+		const_iterator upper_bound(const key_type& k) const {
+			const_iterator it = this->begin();
+			const_iterator end = this->end();
 
+			while (it != end) {
+				if ((*it).first > k)
+					break ;
+				it++;
+			}
+
+			return it;
+		}
 
 		ft::pair<iterator,iterator> equal_range(const key_type& k)  {
 			iterator it_lower_bound = this->lower_bound(k);
