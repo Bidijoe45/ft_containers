@@ -42,9 +42,10 @@ class RedBlackTree
 public:
 	typedef T value_type;
 	typedef Compare key_compare;
+	typedef Allocator allocator_type;
 
 	//FIXME: usar allocator
-	RedBlackTree() : allocator_(Allocator()), comp_(Compare())
+	RedBlackTree() : allocator_(allocator_type()), comp_(Compare())
 	{
 		root_ = new Node();
 	}
@@ -155,7 +156,8 @@ public:
 			if (data.first == current_node->data.first) {
 				return ft::make_pair(current_node, false);
 			}
-			else if (data.first < current_node->data.first) {
+			//else if (data.first < current_node->data.first) {
+			else if (this->comp_(data.first, current_node->data.first)) {
 				current_node = current_node->left;
 			}
 			else {
@@ -165,7 +167,8 @@ public:
 
 		new_node = createNewNode(data);
 		new_node->parent = last_node;
-		if (data.first < last_node->data.first) {
+		//if (data.first < last_node->data.first) {
+		if (this->comp_(data.first, last_node->data.first)) {
 			last_node->left = new_node;
 		}
 		else  {
@@ -203,7 +206,8 @@ public:
 			if (data.first == current_node->data.first) {
 				return ft::make_pair(current_node, false);
 			}
-			else if (data.first < current_node->data.first) {
+			//else if (data.first < current_node->data.first) {
+			else if (this->comp_(data.first, current_node->data.first)) {
 				current_node = current_node->left;
 			}
 			else {
@@ -213,7 +217,8 @@ public:
 
 		new_node = createNewNode(data);
 		new_node->parent = last_node;
-		if (data.first < last_node->data.first) {
+		//if (data.first < last_node->data.first) {
+		if (this->comp_(data.first, last_node->data.first)) {
 			last_node->left = new_node;
 		}
 		else  {
@@ -269,7 +274,8 @@ public:
 			
 			if (curretNode->data.first == key)
 				return curretNode;
-			else if (key < curretNode->data.first)
+			//else if (key < curretNode->data.first)
+			else if (this->comp_(key, curretNode->data.first))
 				curretNode = curretNode->left;
 			else
 				curretNode = curretNode->right;
@@ -281,8 +287,10 @@ public:
 	Node *next(Node *node) {
 		
 		Node *p;
-
-		if (!node->right->isEmpty()) {
+		
+		if (node == NULL)
+			return NULL;
+		else if (!node->right->isEmpty()) {
 			node = node->right;
 			while (!node->left->isEmpty())
 				node = node->left;
@@ -339,6 +347,7 @@ private:
 
 	void deleteFix(Node *x)
 	{
+
 		Node *s;
 		while (x != root_ && x->color == BLACK)
 		{
@@ -409,6 +418,7 @@ private:
 				}
 			}
 		}
+
 		x->color = BLACK;
 	}
 
@@ -478,7 +488,10 @@ private:
 			y->color = z->color;
 		}
 		//FIXME: usar allocator para borrar este nodo
+
 		delete z;
+
+
 		if (y_original_color == 0) {
 			deleteFix(x);
 		}
@@ -547,15 +560,19 @@ private:
 	bool checkHint(Node *node, const value_type &data) {
 		Node *next_node = this->next(node);
 
-		if (node->data.first < data.first &&  data.first < node->data.first)
+		if (next_node == NULL)
+			return false;
+
+		//if (node->data.first < data.first &&  data.first < node->data.first)
+		if (this->comp_(node->data.first, data.first) && this->comp_(data.first, node->data.first))
 			return true;
 
 		return false;
 	}
 
 	Node *root_;
-	Allocator allocator_;
-	Compare comp_;
+	allocator_type allocator_;
+	key_compare comp_;
 
 };
 

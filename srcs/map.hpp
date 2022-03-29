@@ -6,6 +6,7 @@
 #include "utils/tree/tree_iterator.hpp"
 #include "utils/enable_if_traits.hpp"
 #include "utils/is_integral_traits.hpp"
+#include "utils/lexicographical_compare.hpp"
 
 
 namespace ft {
@@ -135,7 +136,7 @@ class map
 		}
 
 		reverse_iterator rbegin() {
-			return reverse_iterator(this->end());
+			return reverse_iterator(this->end(), this->tree_);
 		}
 
 		const_reverse_iterator rbegin() const {
@@ -167,6 +168,9 @@ class map
 		mapped_type& operator[] (const key_type& k) {
 			ft::pair<Node *, bool> insert = this->tree_->insert(ft::make_pair(k, mapped_type()));
 
+			if (insert.second)
+				this->size_++;
+
 			return insert.first->data.second;
 		}
 
@@ -187,7 +191,7 @@ class map
 			if (insert.second)
 				this->size_++;
 
-			return iterator(insert.first);
+			return iterator(insert.first, this->tree_);
 		}
 
 		template<class InputIterator>
@@ -226,14 +230,17 @@ class map
 		void erase(typename ft::enable_if<!ft::is_integral<iterator>::value, iterator>::type first, iterator last) {
 			key_type key;
 			bool deleted;
+			iterator next_it;
 
 			while (first != last) {
+				next_it = first;
+				next_it++;
 				key = (*first).first;
 
 				deleted = this->tree_->deleteNode(key);
 				if (deleted)
 					this->size_--;
-				first++;
+				first = next_it;
 			}
 		}
 
@@ -254,27 +261,30 @@ class map
 
 		void clear() {
 			iterator it = this->begin();
+			iterator it_next;
 			iterator ite = this->end();
 
 			while (it != ite) {
+				it_next = it;
+				it_next++;
 				this->erase(it);
-				it++;
+				it = it_next;
 			}
 		}
 
 		/* OPERATIONS */
 
 		iterator find(const key_type& k) {
-			return iterator(this->tree_->findByKey(k));
+			return iterator(this->tree_->findByKey(k), this->tree_);
 		}
 
 
 		const_iterator find(const key_type& k) const {
-			return const_iterator(this->tree_->findByKey(k));
+			return const_iterator(this->tree_->findByKey(k), this->tree_);
 		}
 
 		size_type count(const key_type& k) const {
-			const_iterator found = this->tree_->findByKey(k);
+			const_iterator found(this->tree_->findByKey(k), this->tree_);
 
 			if (found != this->end())
 				return 1;
@@ -357,6 +367,14 @@ class map
 			tree_->printTree();
 		}
 
+		key_compare key_comp() const {
+			return key_compare();
+		}
+
+		value_compare value_comp() const {
+			return value_compare(this->comp_);
+		}
+
 	private:
 		
 		Tree *tree_;
@@ -365,5 +383,51 @@ class map
 		key_compare comp_;
 
 };
+
+template <class Key, class T, class Compare, class Alloc>
+bool operator==(const ft::map<Key,T,Compare,Alloc>& lhs, const ft::map<Key,T,Compare,Alloc>& rhs) {
+
+	typename ft::map<Key,T,Compare,Alloc>::iterator it1 = lhs.begin();
+	typename ft::map<Key,T,Compare,Alloc>::iterator it2 = rhs.begin();
+	typename ft::map<Key,T,Compare,Alloc>::iterator ite1 = lhs.end();
+
+	if (lhs.size() != rhs.size())
+		return false;
+
+	while (it1 != ite1) {
+		if ((*it1).first != (*it2).first || (*it1).second != (*it2).second)
+			return false;
+
+		it1++;
+		it2++;
+	}
+
+	return true;
+}
+
+template <class Key, class T, class Compare, class Alloc>
+bool operator<(const ft::map<Key,T,Compare,Alloc>& lhs, const ft::map<Key,T,Compare,Alloc>& rhs) {
+	return ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+}
+
+template <class Key, class T, class Compare, class Alloc>
+bool operator!=(const ft::map<Key,T,Compare,Alloc>& lhs, const ft::map<Key,T,Compare,Alloc>& rhs) {
+	return !(lhs == rhs);
+}
+
+template <class Key, class T, class Compare, class Alloc>
+bool operator<=(const ft::map<Key,T,Compare,Alloc>& lhs, const ft::map<Key,T,Compare,Alloc>& rhs) {
+	return !(rhs < lhs);
+}
+
+template <class Key, class T, class Compare, class Alloc>
+bool operator>(const ft::map<Key,T,Compare,Alloc>& lhs, const ft::map<Key,T,Compare,Alloc>& rhs) {
+	return (rhs < lhs);
+}
+
+template <class Key, class T, class Compare, class Alloc>
+bool operator>=(const ft::map<Key,T,Compare,Alloc>& lhs, const ft::map<Key,T,Compare,Alloc>& rhs) {
+	return !(lhs < rhs);
+}
 
 }

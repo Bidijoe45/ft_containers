@@ -32,12 +32,12 @@ template<class T, class Node, class Tree>
 			}
 
 			template <class U, class V, class Y>
-			tree_iterator(const tree_iterator<U, V, Y> &it)
+			tree_iterator(const tree_iterator<U, V, Y>  &it)
 			{
 				this->elemPtr_ = it.base();
 				this->treePtr_ = it.tree();
 			}
-
+			
 			virtual ~tree_iterator() {}
 
 			tree_iterator &operator=(const tree_iterator &it)
@@ -100,7 +100,7 @@ template<class T, class Node, class Tree>
 				return tmp_it;
 			}
 
-			bool operator!=(const tree_iterator &it)
+			bool operator!=(const tree_iterator &it) const
 			{
 				return this->elemPtr_ != it.elemPtr_;
 			}
