@@ -31,12 +31,14 @@ template<class T, class Node, class Tree>
 				this->treePtr_ = tree;
 			}
 
+			
 			template <class U, class V, class Y>
 			tree_iterator(const tree_iterator<U, V, Y>  &it)
 			{
 				this->elemPtr_ = it.base();
 				this->treePtr_ = it.tree();
 			}
+			
 			
 			virtual ~tree_iterator() {}
 
@@ -46,6 +48,7 @@ template<class T, class Node, class Tree>
 					return *this;
 
 				this->elemPtr_ = it.elemPtr_;
+				this->treePtr_ = it.treePtr_;
 				return *this;
 			}
 
@@ -89,7 +92,6 @@ template<class T, class Node, class Tree>
 			tree_iterator &operator--()
 			{
 				this->elemPtr_ = this->treePtr_->prev(this->elemPtr_);
-
 				return *this;
 			}
 

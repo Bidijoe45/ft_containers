@@ -27,11 +27,13 @@ class map
 		typedef ft::Node<value_type> Node;
 		typedef ft::RedBlackTree<value_type, Node, key_compare> Tree;
 		typedef ft::tree_iterator<value_type, Node, Tree> iterator;
-		typedef ft::tree_iterator<const value_type, Node, Tree> const_iterator;
+		typedef ft::tree_iterator<const value_type, Node, const Tree> const_iterator;
 		typedef ft::reverse_iterator<iterator> reverse_iterator;
 		typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 		typedef typename ft::iterator_traits<iterator> difference_type;
 		typedef std::size_t size_type;
+		typename allocator_type::template rebind<Node>::other node_allocator;
+
 
 		class value_compare : std::binary_function<value_type, value_type, bool>
 		{
@@ -136,19 +138,19 @@ class map
 		}
 
 		reverse_iterator rbegin() {
-			return reverse_iterator(this->end(), this->tree_);
+			return reverse_iterator(iterator(NULL, this->tree_));
 		}
 
 		const_reverse_iterator rbegin() const {
-			return const_reverse_iterator(this->end());
+			return const_reverse_iterator(const_iterator(NULL, this->tree_));
 		}
 		
 		reverse_iterator rend() {
-			return reverse_iterator(this->begin());	
+			return reverse_iterator(iterator(tree_->minimum(tree_->getRoot()), this->tree_));	
 		}
 
 		const_reverse_iterator rend() const {
-			return reverse_iterator(this->begin());
+			return reverse_iterator(const_iterator(tree_->minimum(tree_->getRoot()), this->tree_));
 		}
 
 		/* CAPACITY */
@@ -161,7 +163,8 @@ class map
 		}
 
 		size_type max_size() const {
-			return this->allocator_.max_size();
+
+			return node_allocator.max_size();
 		}
 
 		/* ELEMENT ACCESSS */
@@ -247,7 +250,7 @@ class map
 		void swap(map& x) {
 			allocator_type tmp_alloc = this->get_allocator();
 			size_type tmp_size = this->size();
-			RedBlackTree<value_type, Node, key_compare> tmp_tree(this->tree_);
+			Tree *tmp_tree = this->tree_;
 
 			this->allocator_ = x.get_allocator();
 			this->size_ = x.size();
@@ -387,9 +390,9 @@ class map
 template <class Key, class T, class Compare, class Alloc>
 bool operator==(const ft::map<Key,T,Compare,Alloc>& lhs, const ft::map<Key,T,Compare,Alloc>& rhs) {
 
-	typename ft::map<Key,T,Compare,Alloc>::iterator it1 = lhs.begin();
-	typename ft::map<Key,T,Compare,Alloc>::iterator it2 = rhs.begin();
-	typename ft::map<Key,T,Compare,Alloc>::iterator ite1 = lhs.end();
+	typename ft::map<Key,T,Compare,Alloc>::const_iterator it1 = lhs.begin();
+	typename ft::map<Key,T,Compare,Alloc>::const_iterator it2 = rhs.begin();
+	typename ft::map<Key,T,Compare,Alloc>::const_iterator ite1 = lhs.end();
 
 	if (lhs.size() != rhs.size())
 		return false;

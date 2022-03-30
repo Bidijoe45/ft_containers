@@ -132,7 +132,6 @@ namespace ft
 			
 	};
 
-
 		template <class U>
 		ft::random_access_iterator<U> operator+(typename ft::random_access_iterator<U>::difference_type n, const ft::random_access_iterator<U> &it)
 		{
@@ -208,6 +207,7 @@ namespace ft
 		reference operator*() const
 		{
 			iterator_type tmp(this->_base_iterator);
+
 			return *(--tmp);
 		}
 		

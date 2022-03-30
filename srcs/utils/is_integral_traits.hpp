@@ -43,9 +43,11 @@ namespace ft {
 		static const bool value = true;
 	};
 
+/*
 	template<> struct is_integral<long long int> : std::true_type {
 		static const bool value = true;
 	};
+*/
 
 	template<> struct is_integral<unsigned char> : std::true_type {
 		static const bool value = true;
@@ -63,8 +65,10 @@ namespace ft {
 		static const bool value = true;
 	};
 
+/*
 	template<> struct is_integral<unsigned long long int> : std::true_type {
 		static const bool value = true;
 	};
+*/
 
 }

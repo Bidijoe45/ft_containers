@@ -17,17 +17,20 @@ template <class T>
 struct Node
 {
 	typedef T value_type;
-
-	value_type data;
+	
 	Node *parent;
 	Node *left;
 	Node *right;
+	value_type data;
 	NodeColor color;
 	bool empty;
 
 	Node() : data(), empty(true) { }
 
 	Node(value_type data) : data(data), empty(false) { }
+
+	Node(const Node &n) : parent(n.parent), left(n.left), right(n.right), data(n.data), color(n.color), empty(n.isEmpty()) {}
+
 
 	bool isEmpty() const {
 		return empty;
@@ -44,10 +47,10 @@ public:
 	typedef Compare key_compare;
 	typedef Allocator allocator_type;
 
-	//FIXME: usar allocator
 	RedBlackTree() : allocator_(allocator_type()), comp_(Compare())
 	{
-		root_ = new Node();
+		root_ = this->allocator_.allocate(1);
+		this->allocator_.construct(root_, Node());
 	}
 
 	RedBlackTree(const RedBlackTree &tree) {
@@ -70,7 +73,7 @@ public:
 	Node *minimum(Node *node) const
 	{
 		if (node->isEmpty())
-			return NULL;
+			return nullptr;
 		while (!node->left->isEmpty()) {
 			node = node->left;
 		}
@@ -284,7 +287,7 @@ public:
 		return NULL;
 	}
 
-	Node *next(Node *node) {
+	Node *next(Node *node) const {
 		
 		Node *p;
 		
@@ -306,7 +309,7 @@ public:
 		return node;
 	}
 
-	Node *prev(Node *node) {
+	Node *prev(Node *node) const {
 		Node *p;
 
 		if (node == NULL) {
@@ -338,9 +341,12 @@ private:
 
 		this->allocator_.construct(node, Node(data));
 		node->parent = NULL;
-		node->left = new Node();
-		node->right = new Node();
+		node->left = this->allocator_.allocate(1);
+		node->right = this->allocator_.allocate(1);
 		node->color = RED;
+
+		this->allocator_.construct(node->left);
+		this->allocator_.construct(node->right);
 
 		return node;
 	}
@@ -438,8 +444,10 @@ private:
 
 	bool deleteNodeHelper(Node *node, typename value_type::first_type &key)
 	{
-		Node *z = new Node();
+		Node *z = this->allocator_.allocate(1);
 		Node *x, *y;
+
+		this->allocator_.construct(z, Node());
 
 		while (!node->isEmpty())
 		{
@@ -487,10 +495,9 @@ private:
 			y->left->parent = y;
 			y->color = z->color;
 		}
-		//FIXME: usar allocator para borrar este nodo
 
-		delete z;
-
+		this->allocator_.destroy(z);
+		this->allocator_.deallocate(z, 1);
 
 		if (y_original_color == 0) {
 			deleteFix(x);
