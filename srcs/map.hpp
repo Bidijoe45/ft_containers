@@ -61,8 +61,10 @@ class map
 			this->size_ = 0;
 			this->comp_ = comp;
 
+
 			this->tree_ = tree_allocator.allocate(1);
 			tree_allocator.construct(this->tree_, Tree());
+			
 		}
 
 		template <class InputIterator>
@@ -116,8 +118,10 @@ class map
 		}
 
 		//TODO:
-		~map() {
-
+		~map() { 
+			typename allocator_type::template rebind<Tree>::other tree_allocator;
+			tree_allocator.destroy(this->tree_);
+			tree_allocator.deallocate(this->tree_, 1);
 		}
 
 		/* ITERATORS */

@@ -1,6 +1,5 @@
 #pragma once
 #include "iterator_traits.hpp"
-#include <memory>
 
 namespace ft
 {

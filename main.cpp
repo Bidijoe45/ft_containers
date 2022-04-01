@@ -119,44 +119,33 @@ void print_map_content(T &map)
 
 //Vector TEST
 
+void ckeck_leaks() {
+	system("leaks ft_containers");
+}
+
 int main ()
 {
-
-
+	atexit(&ckeck_leaks);
 	ft::map<int, int> map;
-
-	map.insert(std::make_pair(2, 1));
-	map.insert(std::make_pair(4, 22));
-	std::pair<ft::map<int, int>::iterator, bool> insert_ret = map.insert(std::make_pair(6, 333));
-	map.insert(std::make_pair(8, 4444));
-	map.insert(std::make_pair(10, 55555));
-
-	ft::map<int, int>::iterator it = insert_ret.first;
-
-	map.insert(it, std::make_pair(12, 123));
-
-	ft::map<int, int>::iterator find1 = map.find(123123);
-
-	if (find1 != map.end())
-		std::cout << "encontrad 1" << std::endl;
-
-	ft::map<int, int>::iterator find2 = map.find(200);
-
-	if (find2 != map.end())
-		std::cout << "encontrad 2" << std::endl;
 	
+	std::cout << "----" << std::endl;
 
-	std::cout << std::endl << "-------- TREE ---------" << std::endl;
-	map.printTree();
-	std::cout << std::endl << "-----------------------" << std::endl << std::endl;
+	map.insert(ft::make_pair(1, 1));
+	map.insert(ft::make_pair(2, 1));
+	map.insert(ft::make_pair(3, 1));
+	map.insert(ft::make_pair(4, 1));
+	map.insert(ft::make_pair(5, 1));
+	map.insert(ft::make_pair(6, 1));
+	map.insert(ft::make_pair(7, 1));
+	map.insert(ft::make_pair(8, 1));
+	map.insert(ft::make_pair(9, 1));
+	map.insert(ft::make_pair(10, 1));
 
-
-	/*
-	while (it != ite) {
-		std::cout << (*it).first << " : " << (*it).second << std::endl;
-		it++;
-	}
-	*/
 	
+	map.erase(2);
+	map.erase(12);
+	map.erase(2);
+
+
 	return 0;
 }
