@@ -1,6 +1,8 @@
 #pragma once
-
 #include <iostream>
+#include "../pair.hpp"
+
+namespace ft {
 
 enum NodeColor {
 	BLACK = 0,
@@ -14,14 +16,19 @@ struct Node {
 	Node *left;
 	Node *right; 
 	NodeColor color;
+
+	Node() : data() {}
+
+	Node(T data) : data(data) { }
+
 };
 
 template <class T, class Node, class Compare, class Allocator = std::allocator<Node> >
-class RBTree {
-	public:
-		typedef Node* NodePtr;
+class RedBalckTree {
 
 private:
+	typedef T value_type;
+	typedef Node* NodePtr;
 	NodePtr root;
 	NodePtr TNULL;
 	Compare comp_;
@@ -33,58 +40,58 @@ private:
 			if (x == x->parent->left) {
 				s = x->parent->right;
 				if (s->color == RED) {
-					s->color = 0;
-					x->parent->color = 1;
+					s->color = BLACK;
+					x->parent->color = RED;
 					leftRotate(x->parent);
 					s = x->parent->right;
 				}
 
 				if (s->left->color == BLACK && s->right->color == BLACK) {
-					s->color = 1;
+					s->color = RED;
 					x = x->parent;
 				} else {
 					if (s->right->color == BLACK) {
-						s->left->color = 0;
-						s->color = 1;
+						s->left->color = BLACK;
+						s->color = RED;
 						rightRotate(s);
 						s = x->parent->right;
 					} 
 
 					s->color = x->parent->color;
-					x->parent->color = 0;
-					s->right->color = 0;
+					x->parent->color = BLACK;
+					s->right->color = BLACK;
 					leftRotate(x->parent);
 					x = root;
 				}
 			} else {
 				s = x->parent->left;
 				if (s->color == RED) {
-					s->color = 0;
-					x->parent->color = 1;
+					s->color = BLACK;
+					x->parent->color = RED;
 					rightRotate(x->parent);
 					s = x->parent->left;
 				}
 
 				if (s->right->color == BLACK && s->right->color == BLACK) {
-					s->color = 1;
+					s->color = RED;
 					x = x->parent;
 				} else {
 					if (s->left->color == BLACK) {
-						s->right->color = 0;
-						s->color = 1;
+						s->right->color = BLACK;
+						s->color = RED;
 						leftRotate(s);
 						s = x->parent->left;
 					} 
 
 					s->color = x->parent->color;
-					x->parent->color = 0;
-					s->left->color = 0;
+					x->parent->color = BLACK;
+					s->left->color = BLACK;
 					rightRotate(x->parent);
 					x = root;
 				}
 			} 
 		}
-		x->color = 0;
+		x->color = BLACK;
 	}
 
 
@@ -99,15 +106,15 @@ private:
 		v->parent = u->parent;
 	}
 
-	void deleteNodeHelper(NodePtr node, int key) {
+	bool deleteNodeHelper(NodePtr node, typename value_type::first_type key) {
 		NodePtr z = TNULL;
 		NodePtr x, y;
 		while (node != TNULL){
-			if (node->data == key) {
+			if (node->data.first == key) {
 				z = node;
 			}
 
-			if (node->data <= key) {
+			if (node->data.first <= key) {
 				node = node->right;
 			} else {
 				node = node->left;
@@ -115,7 +122,7 @@ private:
 		}
 
 		if (z == TNULL) {
-			return;
+			return false;
 		} 
 
 		y = z;
@@ -150,6 +157,7 @@ private:
 		if (y_original_color == 0){
 			fixDelete(x);
 		}
+		return true;
 	}
 
 	void fixInsert(NodePtr k){
@@ -158,34 +166,34 @@ private:
 			if (k->parent == k->parent->parent->right) {
 				u = k->parent->parent->left;
 				if (u->color == RED) {
-					u->color = 0;
-					k->parent->color = 0;
-					k->parent->parent->color = 1;
+					u->color = BLACK;
+					k->parent->color = BLACK;
+					k->parent->parent->color = RED;
 					k = k->parent->parent;
 				} else {
 					if (k == k->parent->left) {
 						k = k->parent;
 						rightRotate(k);
 					}
-					k->parent->color = 0;
-					k->parent->parent->color = 1;
+					k->parent->color = BLACK;
+					k->parent->parent->color = RED;
 					leftRotate(k->parent->parent);
 				}
 			} else {
 				u = k->parent->parent->right; 
 
 				if (u->color == RED) {
-					u->color = 0;
-					k->parent->color = 0;
-					k->parent->parent->color = 1;
+					u->color = BLACK;
+					k->parent->color = BLACK;
+					k->parent->parent->color = RED;
 					k = k->parent->parent;	
 				} else {
 					if (k == k->parent->right) {
 						k = k->parent;
 						leftRotate(k);
 					}
-					k->parent->color = 0;
-					k->parent->parent->color = 1;
+					k->parent->color = BLACK;
+					k->parent->parent->color = RED;
 					rightRotate(k->parent->parent);
 				}
 			}
@@ -193,11 +201,11 @@ private:
 				break;
 			}
 		}
-		root->color = 0;
+		root->color = BLACK;
 	}
 
 public:
-	RBTree() {
+	RedBalckTree() {
 		TNULL = allocator_.allocate(1);
 		allocator_.construct(TNULL, Node());
 		TNULL->color = BLACK;
@@ -206,8 +214,7 @@ public:
 		root = TNULL;
 		comp_ = Compare();
 	}
-
-	~RBTree() {
+	~RedBalckTree() {
 		this->clearTree(root);
 
 		allocator_.destroy(TNULL);
@@ -216,7 +223,7 @@ public:
 
 	void clearTree(NodePtr node) {
 		
-		if (node == TNULL)
+		if (node == NULL || node == TNULL)
 			return ;
 
 		clearTree(node->left);	
@@ -224,16 +231,23 @@ public:
 
 		allocator_.destroy(node);
 		allocator_.deallocate(node, 1);
+		this->root = TNULL;
 	} 
 
-	NodePtr minimum(NodePtr node) {
+	NodePtr minimum(NodePtr node) const {
+		if (node == NULL || node == TNULL)
+			return NULL;
+		
 		while (node->left != TNULL) {
 			node = node->left;
 		}
 		return node;
 	}
 
-	NodePtr maximum(NodePtr node) {
+	NodePtr maximum(NodePtr node) const {
+		if (node == TNULL)
+			return NULL;
+
 		while (node->right != TNULL) {
 			node = node->right;
 		}
@@ -276,30 +290,77 @@ public:
 		x->parent = y;
 	}
 
-	NodePtr createNewNode(int key) {
+	NodePtr createNewNode(value_type key) {
 		NodePtr node = allocator_.allocate(1);
-		allocator_.construct(node, Node());
+		allocator_.construct(node, Node(key));
 		node->parent = NULL;
-		node->data = key;
 		node->left = TNULL;
 		node->right = TNULL;
-		node->color = 1;
+		node->color = RED;
 
 		return node;
 	}
 
-	void insert(value_type key) {
+	NodePtr next(NodePtr node) const {
 		
+		Node *p;
+		
+		if (node == NULL)
+			return NULL;
+		else if (node->right != TNULL) {
+			node = node->right;
+			while (node->left != TNULL)
+				node = node->left;
+		} else {
+			p = node->parent;
+			while (p != NULL && node == p->right) {
+				node = p;
+				p = p->parent;
+			}
+			node = p;
+		}
+
+		return node;
+	}
+
+	NodePtr prev(NodePtr node) const {
+		NodePtr p;
+
+		if (node == NULL) {
+			node = this->maximum(this->getRoot());
+			return node;
+		}
+
+		if (node->left != TNULL) {
+			node = node->left;
+			while (node->right != TNULL)
+				node = node->right;
+		} else {
+			p = node->parent;
+			while (p != NULL && node == p->left) {
+				node = p;
+				p = p->parent;
+			}
+			node = p;
+		}
+
+		return node;	
+	}
+
+ft::pair<NodePtr, bool> insert(value_type key, NodePtr nodeHint = NULL) {
+
+		if (nodeHint == NULL)
+			nodeHint = this->root;
 
 		NodePtr y = NULL;
-		NodePtr x = this->root;
+		NodePtr x = nodeHint;
 
 		while (x != TNULL) {
 			y = x;
-			if (key == x->data) {
-				return ;
+			if (key.first == x->data.first) {
+				return ft::make_pair(x, false);
 			}
-			else if (comp(key, x->data)) {
+			else if (comp_(key.first, x->data.first)) {
 				x = x->left;
 			} else {
 				x = x->right;
@@ -307,34 +368,78 @@ public:
 		}
 
 		NodePtr node = createNewNode(key);
-
 		node->parent = y;
 		if (y == NULL) {
 			root = node;
-		} else if (node->data < y->data) {
+		} else if (comp_(node->data.first, y->data.first)) {
 			y->left = node;
 		} else {
 			y->right = node;
 		}
 
 		if (node->parent == NULL){
-			node->color = 0;
-			return;
+			node->color = BLACK;
+			return ft::make_pair(node, true);
 		}
 
 		if (node->parent->parent == NULL) {
-			return;
+			return ft::make_pair(node, true);
 		}
 
 		fixInsert(node);
+		return ft::make_pair(node, true);
 	}
 
-	NodePtr getRoot(){
+	ft::pair<NodePtr, bool> insertWithHint(NodePtr nodeHint, value_type key) {
+		NodePtr next_node = this->next(nodeHint);
+
+		if (next_node == NULL)
+			return this->insert(key);
+
+		if (this->comp_(nodeHint->data.first, key.first) && this->comp_(key.first, nodeHint->data.first))
+			return this->insert(key, nodeHint);
+
+		return this->insert(key);
+	}
+
+	NodePtr findByKey(const typename value_type::first_type &key) const {
+
+		NodePtr curretNode = this->root;
+
+		while (curretNode != TNULL) {
+			
+			if (curretNode->data.first == key)
+				return curretNode;
+			else if (this->comp_(key, curretNode->data.first))
+				curretNode = curretNode->left;
+			else
+				curretNode = curretNode->right;
+		}
+
+		return NULL;
+	}
+
+	NodePtr getNullNode() const {
+		return this->TNULL;
+	}
+
+	void setNullNode(NodePtr node) {
+		this->TNULL = node;
+	}
+
+	NodePtr getRoot() const {
+		if (this->root == TNULL) {
+			return NULL;
+		}
 		return this->root;
 	}
 
-	void deleteNode(int data) {
-		deleteNodeHelper(this->root, data);
+	void setRoot(NodePtr newRoot) {
+		this->root = newRoot;
+	}
+
+	bool deleteNode(typename value_type::first_type &data) {
+		return deleteNodeHelper(this->root, data);
 	}
 
 	void prettyPrint() {
@@ -343,19 +448,19 @@ public:
 	    }
 	}
 
-	void printHelper(NodePtr root, string indent, bool last) {
+	void printHelper(NodePtr root, std::string indent, bool last) {
 	   	if (root != TNULL) {
-		   cout<<indent;
+		   std::cout<<indent;
 		   if (last) {
-		      cout<<"R----";
+		      std::cout<<"R----";
 		      indent += "     ";
 		   } else {
-		      cout<<"L----";
+		      std::cout<<"L----";
 		      indent += "|    ";
 		   }
             
-           string sColor = root->color?"RED":"BLACK";
-		   cout<<root->data<<"("<<sColor<<")"<<endl;
+           std::string sColor = root->color?"RED":"BLACK";
+		   std::cout<< "[" << root->data.first << "] => " << root->data.second <<" ("<<sColor<<")"<<std::endl;
 		   printHelper(root->left, indent, false);
 		   printHelper(root->right, indent, true);
 		}
@@ -363,28 +468,5 @@ public:
 
 };
 
-void check_leaks() {
-	system("leaks a.out");
 }
 
-int main() {
-	
-	atexit(&check_leaks);
-	
-	RBTree bst;
-	bst.insert(8);
-	bst.insert(18);
-	bst.insert(18);
-	bst.insert(5);
-	bst.insert(15);
-	bst.insert(17);
-	bst.insert(25);
-	bst.insert(40);
-	bst.insert(80);
-	bst.deleteNode(25);
-	bst.deleteNode(8);
-	
-	bst.prettyPrint();
-
-	return 0;
-}

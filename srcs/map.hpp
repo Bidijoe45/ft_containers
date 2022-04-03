@@ -8,7 +8,6 @@
 #include "utils/is_integral_traits.hpp"
 #include "utils/lexicographical_compare.hpp"
 
-
 namespace ft {
 
 template<class Key, class T, class Compare = std::less<Key>, class Allocator = std::allocator<ft::pair<const Key, T> > >
@@ -25,7 +24,7 @@ class map
 		typedef typename allocator_type::pointer pointer;
 		typedef typename allocator_type::const_pointer const_pointer;
 		typedef ft::Node<value_type> Node;
-		typedef ft::RedBlackTree<value_type, Node, key_compare> Tree;
+		typedef ft::RedBalckTree<value_type, Node, key_compare, Allocator> Tree;
 		typedef ft::tree_iterator<value_type, Node, Tree> iterator;
 		typedef ft::tree_iterator<const value_type, Node, const Tree> const_iterator;
 		typedef ft::reverse_iterator<iterator> reverse_iterator;
@@ -61,9 +60,8 @@ class map
 			this->size_ = 0;
 			this->comp_ = comp;
 
-
-			this->tree_ = tree_allocator.allocate(1);
-			tree_allocator.construct(this->tree_, Tree());
+			//this->tree_ = tree_allocator.allocate(1);
+			//tree_allocator.construct(this->tree_, Tree());
 			
 		}
 
@@ -77,8 +75,8 @@ class map
 			this->size_ = 0;
 			this->comp_ = comp;
 			
-			this->tree_ = tree_allocator.allocate(1);
-			tree_allocator.construct(this->tree_, Tree());
+			//this->tree_ = tree_allocator.allocate(1);
+			//tree_allocator.construct(this->tree_, Tree());
 
 			while (first != last) {
 				this->insert(*first);
@@ -91,9 +89,10 @@ class map
 
 			this->allocator_ = m.get_allocator();
 			this->comp_ = map::key_compare();
+			this->size_ = 0;
 
-			this->tree_ = tree_allocator.allocate(1);
-			tree_allocator.construct(this->tree_, Tree());
+			//this->tree_ = tree_allocator.allocate(1);
+			//tree_allocator.construct(this->tree_, Tree());
 			
 			this->insert(m.begin(), m.end());
 		}
@@ -102,59 +101,63 @@ class map
 			if (this == &m)
 				return *this;
 
-			typename allocator_type::template rebind<Tree>::other tree_allocator;
+			//typename allocator_type::template rebind<Tree>::other tree_allocator;
 
 			this->allocator_ = m.get_allocator();
 			this->comp_ = map::key_compare();
 
-			if (this->tree_ != NULL)
-				this->tree_ = tree_allocator.allocate(1);
-			tree_allocator.construct(this->tree_, Tree());
+			//if (this->tree_ != NULL)
+			//	this->tree_ = tree_allocator.allocate(1);
+			//tree_allocator.construct(this->tree_, Tree());
 			
 			this->size_ = 0;
+
+
+			this->clear();
+
 			this->insert(m.begin(), m.end());
 
 			return *this;
 		}
 
-		//TODO:
 		~map() { 
-			typename allocator_type::template rebind<Tree>::other tree_allocator;
-			tree_allocator.destroy(this->tree_);
-			tree_allocator.deallocate(this->tree_, 1);
+			//typename allocator_type::template rebind<Tree>::other tree_allocator;
+			//tree_allocator.destroy(this->tree_);
+			//tree_allocator.deallocate(this->tree_, 1);
 		}
 
 		/* ITERATORS */
 		iterator begin() {
-			return iterator(tree_->minimum(tree_->getRoot()), this->tree_);
+			return iterator(tree_.minimum(tree_.getRoot()), &this->tree_);
 		}
 
 		const_iterator begin() const {
-			return const_iterator(tree_->minimum(tree_->getRoot()), this->tree_);
+
+			return const_iterator(tree_.minimum(tree_.getRoot()), &this->tree_);
 		}
 
 		iterator end() {
-			return iterator(NULL, this->tree_);
+			return iterator(NULL, &this->tree_);
 		}
 
 		const_iterator end() const {
-			return const_iterator(NULL, this->tree_);
+			return const_iterator(NULL, &this->tree_);
 		}
 
 		reverse_iterator rbegin() {
-			return reverse_iterator(iterator(NULL, this->tree_));
+			return reverse_iterator(iterator(NULL, &this->tree_));
 		}
 
 		const_reverse_iterator rbegin() const {
-			return const_reverse_iterator(const_iterator(NULL, this->tree_));
+			return const_reverse_iterator(const_iterator(NULL, &this->tree_));
 		}
 		
 		reverse_iterator rend() {
-			return reverse_iterator(iterator(tree_->minimum(tree_->getRoot()), this->tree_));	
+			return reverse_iterator(iterator(tree_.minimum(tree_.getRoot()), &this->tree_));	
 		}
 
 		const_reverse_iterator rend() const {
-			return reverse_iterator(const_iterator(tree_->minimum(tree_->getRoot()), this->tree_));
+			return reverse_iterator(const_iterator(tree_.minimum(tree_.getRoot()), &this->tree_));
 		}
 
 		/* CAPACITY */
@@ -173,7 +176,7 @@ class map
 
 		/* ELEMENT ACCESSS */
 		mapped_type& operator[] (const key_type& k) {
-			ft::pair<Node *, bool> insert = this->tree_->insert(ft::make_pair(k, mapped_type()));
+			ft::pair<Node *, bool> insert = this->tree_.insert(ft::make_pair(k, mapped_type()));
 
 			if (insert.second)
 				this->size_++;
@@ -183,8 +186,8 @@ class map
 
 		/* MODIFIERS */
 		ft::pair<iterator, bool> insert(const value_type& val) {
-			ft::pair<Node *, bool> insert = this->tree_->insert(val);
-			iterator it(insert.first, this->tree_);
+			ft::pair<Node *, bool> insert = this->tree_.insert(val);
+			iterator it(insert.first, &this->tree_);
 
 			if (insert.second)
 				this->size_++;
@@ -193,12 +196,12 @@ class map
 		}
 
 		iterator insert(iterator position, const value_type& val) {
-			ft::pair<Node *, bool> insert = this->tree_->insertWithHint(position.base(), val);
+			ft::pair<Node *, bool> insert = this->tree_.insertWithHint(position.base(), val);
 
 			if (insert.second)
 				this->size_++;
 
-			return iterator(insert.first, this->tree_);
+			return iterator(insert.first, &this->tree_);
 		}
 
 		template<class InputIterator>
@@ -207,7 +210,7 @@ class map
 
 			while (first != last) {
 				
-				insert = this->tree_->insert(*first);
+				insert = this->tree_.insert(*first);
 
 				if (insert.second)
 					this->size_++;
@@ -218,14 +221,14 @@ class map
 
 		void erase(typename ft::enable_if<!ft::is_integral<iterator>::value, iterator>::type position) {
 			key_type key = (*position).first;
-			bool deleted = this->tree_->deleteNode(key);
+			bool deleted = this->tree_.deleteNode(key);
 
 			if (deleted)
 				this->size_--;
 		}
 
 		size_type erase(const key_type& k) {
-			bool deleted = this->tree_->deleteNode(k);
+			bool deleted = this->tree_.deleteNode(k);
 
 			if (deleted) {
 				this->size_--;
@@ -244,7 +247,7 @@ class map
 				next_it++;
 				key = (*first).first;
 
-				deleted = this->tree_->deleteNode(key);
+				deleted = this->tree_.deleteNode(key);
 				if (deleted)
 					this->size_--;
 				first = next_it;
@@ -254,44 +257,39 @@ class map
 		void swap(map& x) {
 			allocator_type tmp_alloc = this->get_allocator();
 			size_type tmp_size = this->size();
-			Tree *tmp_tree = this->tree_;
+			Node *tmp_root = this->tree_.getRoot();
+			Node *tmp_nullNode = this->tree_.getNullNode();
 
 			this->allocator_ = x.get_allocator();
 			this->size_ = x.size();
-			this->tree_ = x.tree_;
+			this->tree_.setRoot(x.tree_.getRoot());
+			this->tree_.setNullNode(x.tree_.getNullNode());
 
 			x.allocator_ = tmp_alloc;
 			x.size_ = tmp_size;
-			x.tree_ = tmp_tree;
+			x.tree_.setRoot(tmp_root);
+			x.tree_.setNullNode(tmp_nullNode);
 			
 		}
 
 		void clear() {
-			iterator it = this->begin();
-			iterator it_next;
-			iterator ite = this->end();
-
-			while (it != ite) {
-				it_next = it;
-				it_next++;
-				this->erase(it);
-				it = it_next;
-			}
+			this->tree_.clearTree(this->tree_.getRoot());
+			this->size_ = 0;
 		}
 
 		/* OPERATIONS */
 
 		iterator find(const key_type& k) {
-			return iterator(this->tree_->findByKey(k), this->tree_);
+			return iterator(this->tree_.findByKey(k), &this->tree_);
 		}
 
 
 		const_iterator find(const key_type& k) const {
-			return const_iterator(this->tree_->findByKey(k), this->tree_);
+			return const_iterator(this->tree_.findByKey(k), &this->tree_);
 		}
 
 		size_type count(const key_type& k) const {
-			const_iterator found(this->tree_->findByKey(k), this->tree_);
+			const_iterator found(this->tree_.findByKey(k), &this->tree_);
 
 			if (found != this->end())
 				return 1;
@@ -371,7 +369,7 @@ class map
 		}
 
 		void printTree() {
-			tree_->printTree();
+			tree_.prettyPrint();
 		}
 
 		key_compare key_comp() const {
@@ -384,7 +382,7 @@ class map
 
 	private:
 		
-		Tree *tree_;
+		Tree tree_;
 		size_type size_;
 		allocator_type allocator_;
 		key_compare comp_;
