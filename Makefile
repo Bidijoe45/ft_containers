@@ -1,7 +1,7 @@
 NAME = ft_containers
 SRCS = main.cpp
 OBJS = $(SRCS:.cpp=.o)
-CXXFLAGS = -std=c++98 -Wall -Werror -Wextra -Wpedantic 
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 all: $(NAME)
 
 $(NAME) : $(OBJS)

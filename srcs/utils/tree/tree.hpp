@@ -29,11 +29,200 @@ class RedBalckTree {
 private:
 	typedef T value_type;
 	typedef Node* NodePtr;
-	NodePtr root;
-	NodePtr TNULL;
-	Compare comp_;
-	std::allocator<Node> allocator_;
 
+public:
+	RedBalckTree() {
+		TNULL = allocator_.allocate(1);
+		allocator_.construct(TNULL, Node());
+		TNULL->color = BLACK;
+		TNULL->left = NULL;
+		TNULL->right = NULL;
+		root = TNULL;
+		comp_ = Compare();
+	}
+
+	~RedBalckTree() {
+		this->clearTree(root);
+
+		allocator_.destroy(TNULL);
+		allocator_.deallocate(TNULL, 1);
+	}
+
+	ft::pair<NodePtr, bool> insert(value_type key, NodePtr nodeHint = NULL) {
+
+		if (nodeHint == NULL)
+			nodeHint = this->root;
+
+		NodePtr y = NULL;
+		NodePtr x = nodeHint;
+
+		while (x != TNULL) {
+			y = x;
+			if (key.first == x->data.first) {
+				return ft::make_pair(x, false);
+			}
+			else if (comp_(key.first, x->data.first)) {
+				x = x->left;
+			} else {
+				x = x->right;
+			}
+		}
+
+		NodePtr node = createNewNode(key);
+		node->parent = y;
+		if (y == NULL) {
+			root = node;
+		} else if (comp_(node->data.first, y->data.first)) {
+			y->left = node;
+		} else {
+			y->right = node;
+		}
+
+		if (node->parent == NULL){
+			node->color = BLACK;
+			return ft::make_pair(node, true);
+		}
+
+		if (node->parent->parent == NULL) {
+			return ft::make_pair(node, true);
+		}
+
+		fixInsert(node);
+		return ft::make_pair(node, true);
+	}
+
+	bool deleteNode(typename value_type::first_type &data) { 
+		return deleteNodeHelper(this->root, data);
+	}
+
+	void clearTree(NodePtr node) {
+		
+		if (node == NULL || node == TNULL)
+			return ;
+
+		clearTree(node->left);	
+		clearTree(node->right);
+
+		allocator_.destroy(node);
+		allocator_.deallocate(node, 1);
+		this->root = TNULL;
+	}
+
+	NodePtr minimum(NodePtr node) const {
+		if (node == NULL || node == TNULL)
+			return NULL;
+		
+		while (node->left != TNULL) {
+			node = node->left;
+		}
+		return node;
+	}
+
+	NodePtr maximum(NodePtr node) const {
+		if (node == TNULL)
+			return NULL;
+
+		while (node->right != TNULL) {
+			node = node->right;
+		}
+		return node;
+	}
+
+	NodePtr getNullNode() const {
+		return this->TNULL;
+	}
+
+	void setNullNode(NodePtr node) {
+		this->TNULL = node;
+	}
+
+	NodePtr getRoot() const {
+		if (this->root == TNULL) {
+			return NULL;
+		}
+		return this->root;
+	}
+
+	void setRoot(NodePtr newRoot) {
+		this->root = newRoot;
+	}
+
+		NodePtr next(NodePtr node) const {
+		
+		Node *p;
+		
+		if (node == NULL)
+			return NULL;
+		else if (node->right != TNULL) {
+			node = node->right;
+			while (node->left != TNULL)
+				node = node->left;
+		} else {
+			p = node->parent;
+			while (p != NULL && node == p->right) {
+				node = p;
+				p = p->parent;
+			}
+			node = p;
+		}
+
+		return node;
+	}
+
+	NodePtr prev(NodePtr node) const {
+		NodePtr p;
+
+		if (node == NULL) {
+			node = this->maximum(this->getRoot());
+			return node;
+		}
+
+		if (node->left != TNULL) {
+			node = node->left;
+			while (node->right != TNULL)
+				node = node->right;
+		} else {
+			p = node->parent;
+			while (p != NULL && node == p->left) {
+				node = p;
+				p = p->parent;
+			}
+			node = p;
+		}
+
+		return node;	
+	}
+
+	ft::pair<NodePtr, bool> insertWithHint(NodePtr nodeHint, value_type key) {
+		NodePtr next_node = this->next(nodeHint);
+
+		if (next_node == NULL)
+			return this->insert(key);
+
+		if (this->comp_(nodeHint->data.first, key.first) && this->comp_(key.first, nodeHint->data.first))
+			return this->insert(key, nodeHint);
+
+		return this->insert(key);
+	}
+
+	NodePtr findByKey(const typename value_type::first_type &key) const {
+
+		NodePtr curretNode = this->root;
+
+		while (curretNode != TNULL) {
+			
+			if (curretNode->data.first == key)
+				return curretNode;
+			else if (this->comp_(key, curretNode->data.first))
+				curretNode = curretNode->left;
+			else
+				curretNode = curretNode->right;
+		}
+
+		return NULL;
+	}
+
+private:
 	void fixDelete(NodePtr x) {
 		NodePtr s;
 		while (x != root && x->color == BLACK) {
@@ -95,7 +284,7 @@ private:
 	}
 
 
-	void rbTransplant(NodePtr u, NodePtr v){
+	void swap(NodePtr u, NodePtr v){
 		if (u->parent == NULL) {
 			root = v;
 		} else if (u == u->parent->left){
@@ -129,10 +318,10 @@ private:
 		int y_original_color = y->color;
 		if (z->left == TNULL) {
 			x = z->right;
-			rbTransplant(z, z->right);
+			swap(z, z->right);
 		} else if (z->right == TNULL) {
 			x = z->left;
-			rbTransplant(z, z->left);
+			swap(z, z->left);
 		} else {
 			y = minimum(z->right);
 			y_original_color = y->color;
@@ -140,12 +329,12 @@ private:
 			if (y->parent == z) {
 				x->parent = y;
 			} else {
-				rbTransplant(y, y->right);
+				swap(y, y->right);
 				y->right = z->right;
 				y->right->parent = y;
 			}
 
-			rbTransplant(z, y);
+			swap(z, y);
 			y->left = z->left;
 			y->left->parent = y;
 			y->color = z->color;
@@ -204,56 +393,6 @@ private:
 		root->color = BLACK;
 	}
 
-public:
-	RedBalckTree() {
-		TNULL = allocator_.allocate(1);
-		allocator_.construct(TNULL, Node());
-		TNULL->color = BLACK;
-		TNULL->left = NULL;
-		TNULL->right = NULL;
-		root = TNULL;
-		comp_ = Compare();
-	}
-	~RedBalckTree() {
-		this->clearTree(root);
-
-		allocator_.destroy(TNULL);
-		allocator_.deallocate(TNULL, 1);
-	}
-
-	void clearTree(NodePtr node) {
-		
-		if (node == NULL || node == TNULL)
-			return ;
-
-		clearTree(node->left);	
-		clearTree(node->right);
-
-		allocator_.destroy(node);
-		allocator_.deallocate(node, 1);
-		this->root = TNULL;
-	} 
-
-	NodePtr minimum(NodePtr node) const {
-		if (node == NULL || node == TNULL)
-			return NULL;
-		
-		while (node->left != TNULL) {
-			node = node->left;
-		}
-		return node;
-	}
-
-	NodePtr maximum(NodePtr node) const {
-		if (node == TNULL)
-			return NULL;
-
-		while (node->right != TNULL) {
-			node = node->right;
-		}
-		return node;
-	}
-
 	void leftRotate(NodePtr x) {
 		NodePtr y = x->right;
 		x->right = y->left;
@@ -301,154 +440,13 @@ public:
 		return node;
 	}
 
-	NodePtr next(NodePtr node) const {
-		
-		Node *p;
-		
-		if (node == NULL)
-			return NULL;
-		else if (node->right != TNULL) {
-			node = node->right;
-			while (node->left != TNULL)
-				node = node->left;
-		} else {
-			p = node->parent;
-			while (p != NULL && node == p->right) {
-				node = p;
-				p = p->parent;
-			}
-			node = p;
-		}
-
-		return node;
-	}
-
-	NodePtr prev(NodePtr node) const {
-		NodePtr p;
-
-		if (node == NULL) {
-			node = this->maximum(this->getRoot());
-			return node;
-		}
-
-		if (node->left != TNULL) {
-			node = node->left;
-			while (node->right != TNULL)
-				node = node->right;
-		} else {
-			p = node->parent;
-			while (p != NULL && node == p->left) {
-				node = p;
-				p = p->parent;
-			}
-			node = p;
-		}
-
-		return node;	
-	}
-
-ft::pair<NodePtr, bool> insert(value_type key, NodePtr nodeHint = NULL) {
-
-		if (nodeHint == NULL)
-			nodeHint = this->root;
-
-		NodePtr y = NULL;
-		NodePtr x = nodeHint;
-
-		while (x != TNULL) {
-			y = x;
-			if (key.first == x->data.first) {
-				return ft::make_pair(x, false);
-			}
-			else if (comp_(key.first, x->data.first)) {
-				x = x->left;
-			} else {
-				x = x->right;
-			}
-		}
-
-		NodePtr node = createNewNode(key);
-		node->parent = y;
-		if (y == NULL) {
-			root = node;
-		} else if (comp_(node->data.first, y->data.first)) {
-			y->left = node;
-		} else {
-			y->right = node;
-		}
-
-		if (node->parent == NULL){
-			node->color = BLACK;
-			return ft::make_pair(node, true);
-		}
-
-		if (node->parent->parent == NULL) {
-			return ft::make_pair(node, true);
-		}
-
-		fixInsert(node);
-		return ft::make_pair(node, true);
-	}
-
-	ft::pair<NodePtr, bool> insertWithHint(NodePtr nodeHint, value_type key) {
-		NodePtr next_node = this->next(nodeHint);
-
-		if (next_node == NULL)
-			return this->insert(key);
-
-		if (this->comp_(nodeHint->data.first, key.first) && this->comp_(key.first, nodeHint->data.first))
-			return this->insert(key, nodeHint);
-
-		return this->insert(key);
-	}
-
-	NodePtr findByKey(const typename value_type::first_type &key) const {
-
-		NodePtr curretNode = this->root;
-
-		while (curretNode != TNULL) {
-			
-			if (curretNode->data.first == key)
-				return curretNode;
-			else if (this->comp_(key, curretNode->data.first))
-				curretNode = curretNode->left;
-			else
-				curretNode = curretNode->right;
-		}
-
-		return NULL;
-	}
-
-	NodePtr getNullNode() const {
-		return this->TNULL;
-	}
-
-	void setNullNode(NodePtr node) {
-		this->TNULL = node;
-	}
-
-	NodePtr getRoot() const {
-		if (this->root == TNULL) {
-			return NULL;
-		}
-		return this->root;
-	}
-
-	void setRoot(NodePtr newRoot) {
-		this->root = newRoot;
-	}
-
-	bool deleteNode(typename value_type::first_type &data) {
-		return deleteNodeHelper(this->root, data);
-	}
-
-	void prettyPrint() {
+	void printTree() {
 	    if (root) {
-    		printHelper(this->root, "", true);
+    		printTreeHelper(this->root, "", true);
 	    }
 	}
 
-	void printHelper(NodePtr root, std::string indent, bool last) {
+	void printTreeHelper(NodePtr root, std::string indent, bool last) {
 	   	if (root != TNULL) {
 		   std::cout<<indent;
 		   if (last) {
@@ -461,10 +459,15 @@ ft::pair<NodePtr, bool> insert(value_type key, NodePtr nodeHint = NULL) {
             
            std::string sColor = root->color?"RED":"BLACK";
 		   std::cout<< "[" << root->data.first << "] => " << root->data.second <<" ("<<sColor<<")"<<std::endl;
-		   printHelper(root->left, indent, false);
-		   printHelper(root->right, indent, true);
+		   printTreeHelper(root->left, indent, false);
+		   printTreeHelper(root->right, indent, true);
 		}
 	}
+	
+	NodePtr root;
+	NodePtr TNULL;
+	Compare comp_;
+	std::allocator<Node> allocator_;
 
 };
 

@@ -23,17 +23,23 @@ class map
 		typedef typename allocator_type::const_reference const_reference;
 		typedef typename allocator_type::pointer pointer;
 		typedef typename allocator_type::const_pointer const_pointer;
+
+	private:
 		typedef ft::Node<value_type> Node;
 		typedef ft::RedBalckTree<value_type, Node, key_compare, Allocator> Tree;
+	
+	public:
 		typedef ft::tree_iterator<value_type, Node, Tree> iterator;
 		typedef ft::tree_iterator<const value_type, Node, const Tree> const_iterator;
 		typedef ft::reverse_iterator<iterator> reverse_iterator;
 		typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 		typedef typename ft::iterator_traits<iterator> difference_type;
 		typedef std::size_t size_type;
+
+	private:
 		typename allocator_type::template rebind<Node>::other node_allocator;
 
-
+	public:
 		class value_compare : std::binary_function<value_type, value_type, bool>
 		{
 			friend class map<key_type, mapped_type, key_compare, Allocator>;
@@ -52,31 +58,19 @@ class map
 		};
 
 		/* CONSTRUCTORS */
-		explicit map(const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
-		{
-			typename allocator_type::template rebind<Tree>::other tree_allocator;
-
+		explicit map(const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type()) {
 			this->allocator_ = alloc;
 			this->size_ = 0;
 			this->comp_ = comp;
-
-			//this->tree_ = tree_allocator.allocate(1);
-			//tree_allocator.construct(this->tree_, Tree());
-			
 		}
 
 		template <class InputIterator>
   		map(typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last,
 		  	const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
 		{	
-			typename allocator_type::template rebind<Tree>::other tree_allocator;
-
 			this->allocator_ = alloc;
 			this->size_ = 0;
 			this->comp_ = comp;
-			
-			//this->tree_ = tree_allocator.allocate(1);
-			//tree_allocator.construct(this->tree_, Tree());
 
 			while (first != last) {
 				this->insert(*first);
@@ -85,15 +79,9 @@ class map
 		}
 
 		map(const map& m) {
-			typename allocator_type::template rebind<Tree>::other tree_allocator;
-
 			this->allocator_ = m.get_allocator();
 			this->comp_ = map::key_compare();
 			this->size_ = 0;
-
-			//this->tree_ = tree_allocator.allocate(1);
-			//tree_allocator.construct(this->tree_, Tree());
-			
 			this->insert(m.begin(), m.end());
 		}
 
@@ -101,29 +89,17 @@ class map
 			if (this == &m)
 				return *this;
 
-			//typename allocator_type::template rebind<Tree>::other tree_allocator;
-
 			this->allocator_ = m.get_allocator();
 			this->comp_ = map::key_compare();
-
-			//if (this->tree_ != NULL)
-			//	this->tree_ = tree_allocator.allocate(1);
-			//tree_allocator.construct(this->tree_, Tree());
-			
 			this->size_ = 0;
-
-
 			this->clear();
-
 			this->insert(m.begin(), m.end());
 
 			return *this;
 		}
 
 		~map() { 
-			//typename allocator_type::template rebind<Tree>::other tree_allocator;
-			//tree_allocator.destroy(this->tree_);
-			//tree_allocator.deallocate(this->tree_, 1);
+			this->tree_.clearTree(this->tree_.getRoot());
 		}
 
 		/* ITERATORS */
@@ -283,7 +259,6 @@ class map
 			return iterator(this->tree_.findByKey(k), &this->tree_);
 		}
 
-
 		const_iterator find(const key_type& k) const {
 			return const_iterator(this->tree_.findByKey(k), &this->tree_);
 		}
@@ -355,21 +330,16 @@ class map
 			return ft::make_pair(it_lower_bound, it_upper_bound);
 		}
 		
-		pair<const_iterator, const_iterator>equal_range(const key_type& k) const {
+		pair<const_iterator, const_iterator> equal_range(const key_type& k) const {
 			const_iterator it_lower_bound = this->lower_bound(k);
 			const_iterator it_upper_bound = this->upper_bound(k);
 
 			return ft::make_pair(it_lower_bound, it_upper_bound);
 		}
 
-
 		/* ALLOCATOR */
 		allocator_type get_allocator() const {
 			return this->allocator_;
-		}
-
-		void printTree() {
-			tree_.prettyPrint();
 		}
 
 		key_compare key_comp() const {
