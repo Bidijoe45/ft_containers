@@ -1,151 +1,355 @@
 #include <iostream>
-#include <fstream>
-#include <memory>
+
 #include <vector>
-#include <string>
-#include <map>
-#include "./srcs/vector.hpp"
-#include "./srcs/utils/tree/tree.hpp"
-#include "./srcs/utils/is_integral_traits.hpp"
-#include "./srcs/utils/iterator_traits.hpp"
-#include "./srcs/map.hpp"
+#include "srcs/vector.hpp"
 
-//ALLOCATOR USE TEST
-/*
+#define NOCOLOR "\e[0m"
+#define RED "\e[0;31m"
+#define GREEN "\e[0;32m"
 
-class Person {
-	private:
-		std::string		_name;
-		unsigned int	_age;
-	
-	public:
-		Person()
-		{
-			this->_name = "NO_NAME";
-			this->_age = 0;
-		}
+#define SHOW_OUTPUT false
 
-		Person(std::string name, unsigned int age) : 
-			_name(name), _age(age)
-		{
-
-		}
-
-		~Person()
-		{
-			
-		}
-
-		Person &operator=(const Person &p)
-		{
-			this->_name = p.getName();
-			this->_age = p.getAge();
-
-			return *this;
-		}
-
-		const std::string &getName() const {return this->_name;}
-		const unsigned int &getAge() const {return this->_age;}
-		void setName(const std::string &name) {this->_name = name;}
-		void setAge(const unsigned int &age) {this->_age = age;}
-};
-
-std::ostream& operator<<(std::ostream &os, const Person &p)
-{
-	os << "Person: " << p.getName() << " age: " << p.getAge();
-	return os;
-}
-
-int main()
-{
-	srand(time(NULL));
-	std::allocator<Person> allocator;
-
-	Person *persons = allocator.allocate(3);
-
-	for (int i = 0; i < 3; i++)
-	{
-		std::string name = "Person " + std::to_string(i + 1);
-		unsigned int age = rand() % 100;
-		allocator.construct(&persons[i], name, age);
-	}
-
-	for (int i=0; i < 3; i++)
-	{
-		std::cout << "Person: " << persons[i].getName() << ", " << persons[i].getAge() << std::endl;
-	}
-
-	return 0;
-}
-*/
-
-template<class T>
-void print_vector_stats(T &vec)
-{
-	std::cout << std::endl << "-- vector stats -- " << std::endl;
-	std::cout << "size: " << vec.size() << std::endl;
-	std::cout << "capacity: " << vec.capacity() << std::endl;
-	std::cout << std::endl;
-}
-
-template<class T>
-void print_vector_content(T &vec)
-{
-	typename T::iterator it = vec.begin();
-	typename T::iterator ite = vec.end();
-
-	std::cout << "---- CONTENT ----" << std::endl;
-	while (it != ite)
-	{
-		std::cout << *it << std::endl;
-		it++;
-	}
-	std::cout << "-----------------" << std::endl;
-}
-
-template<class T>
-void print_map_content(T &map)
-{
-	typename T::iterator it = map.begin();
-	typename T::iterator ite = map.end();
-
-	std::cout << "---- CONTENT ----" << std::endl;
-	while (it != ite) {
-		std::cout << "[" << (*it).first << "] => " << (*it).second << std::endl;
-		it++;
-	}
-	std::cout << "-----------------" << std::endl;
-}
-
-//Vector TEST
-
-void ckeck_leaks() {
+void check_leaks() {
 	system("leaks ft_containers");
+}
+
+/* -------------- VECTOR TESTER -------------- */
+
+template<class T>
+std::string get_vector_content_std(typename std::vector<T> &vec) {
+	std::string output = "";
+
+	output += ("size: " + std::to_string(vec.size()) + "\n");
+
+	typename std::vector<T>::iterator it = vec.begin();
+	typename std::vector<T>::iterator ite = vec.end();
+
+	output += "--- CONTENT: ---" ;
+	output += "\n";
+	while (it != ite) {
+		output += std::to_string(*it) + "\n";
+		it++;
+	}
+
+	output += "\n";
+	output += "----------------";
+	output += '\n';
+
+	if (SHOW_OUTPUT) {
+		std::cout << "======= STD OUTPUT ========" << std::endl;
+		std::cout << output;
+		std::cout << "==========================" << std::endl;
+	}
+
+	return output;
+}
+
+template<class T>
+std::string get_vector_content_ft(typename ft::vector<T> &vec) {
+	std::string output = "";
+
+	output += ("size: " + std::to_string(vec.size()) + "\n");
+
+	typename ft::vector<T>::iterator it = vec.begin();
+	typename ft::vector<T>::iterator ite = vec.end();
+
+	output += "--- CONTENT: ---" ;
+	output += "\n";
+	while (it != ite) {
+		output += std::to_string(*it) + "\n";
+		it++;
+	}
+
+	output += "\n";
+	output += "----------------";
+	output += '\n';
+
+	if (SHOW_OUTPUT) {
+		std::cout << "======= FT OUTPUT ========" << std::endl;
+		std::cout << output;
+		std::cout << "==========================" << std::endl;
+	}
+
+	return output;
+}
+
+bool compare_vector_test_output(int test_number, std::string (*func1)(void), std::string(*func2)(void)) {
+	if (SHOW_OUTPUT) {
+		std::cout << "=============" << " TEST " << test_number << " =============" << std::endl;
+	}
+
+	std::string output1 = func1();
+	std::string output2 = func2();
+
+	return output1 == output2;
+}
+
+void print_outputs_result(int test_number, bool test_result) {
+	
+	std::cout << "Test " << test_number << " => " << ((test_result) ? GREEN "OK" : RED "KO") << NOCOLOR << std::endl;
+}
+
+//############ TEST 1 #################
+
+std::string vector_test_1_std() {
+	
+	std::vector<int> vec;
+
+	vec.push_back(1);
+	vec.push_back(2);
+	vec.push_back(3);
+	vec.push_back(4);
+
+	return get_vector_content_std(vec);
+}
+
+std::string vector_test_1_ft() {
+	
+	ft::vector<int> vec;
+
+	vec.push_back(1);
+	vec.push_back(2);
+	vec.push_back(3);
+	vec.push_back(4);
+
+	return get_vector_content_ft(vec);
+}
+
+//############ TEST 2 #################
+
+std::string vector_test_2_std() {
+	
+	std::vector<int> vec;
+
+	vec.push_back(1);
+	vec.push_back(2);
+	vec.push_back(3);
+	vec.push_back(4);
+
+	vec.pop_back();
+	vec.pop_back();
+
+	return get_vector_content_std(vec);
+}
+
+std::string vector_test_2_ft() {
+	
+	ft::vector<int> vec;
+
+	vec.push_back(1);
+	vec.push_back(2);
+	vec.push_back(3);
+	vec.push_back(4);
+
+	vec.pop_back();
+	vec.pop_back();
+
+	return get_vector_content_ft(vec);
+}
+
+//############ TEST 3 #################
+
+std::string vector_test_3_std() {
+	
+	std::vector<int> vec;
+
+	vec.push_back(1);
+	vec.push_back(2);
+	vec.push_back(3);
+	vec.push_back(4);
+
+	vec.pop_back();
+	vec.pop_back();
+
+	std::vector<int>::iterator pos = vec.begin();
+
+	vec.insert(pos, 69);
+
+	pos = vec.end();
+
+	vec.insert(pos, 0);
+
+	return get_vector_content_std(vec);
+}
+
+std::string vector_test_3_ft() {
+	
+	ft::vector<int> vec;
+
+	vec.push_back(1);
+	vec.push_back(2);
+	vec.push_back(3);
+	vec.push_back(4);
+
+	vec.pop_back();
+	vec.pop_back();
+
+	ft::vector<int>::iterator pos = vec.begin();
+
+	vec.insert(pos, 69);
+
+	pos = vec.end();
+
+	vec.insert(pos, 0);
+
+	return get_vector_content_ft(vec);
+}
+
+//############ TEST 4 #################
+
+std::string vector_test_4_std() {
+	
+	std::vector<int> vec;
+
+	vec.push_back(1);
+	vec.push_back(2);
+	vec.push_back(3);
+	vec.push_back(4);
+
+	vec.pop_back();
+	vec.pop_back();
+
+	std::vector<int> map2;
+
+	map2.push_back(-9);
+	map2.push_back(-8);
+	map2.push_back(-7);
+	map2.push_back(-6);
+
+	vec.insert(vec.begin(), map2.begin(), map2.end());
+
+	return get_vector_content_std(vec);
+}
+
+std::string vector_test_4_ft() {
+	
+	ft::vector<int> vec;
+
+	vec.push_back(1);
+	vec.push_back(2);
+	vec.push_back(3);
+	vec.push_back(4);
+
+	vec.pop_back();
+	vec.pop_back();
+
+	ft::vector<int> map2;
+
+	map2.push_back(-9);
+	map2.push_back(-8);
+	map2.push_back(-7);
+	map2.push_back(-6);
+
+	vec.insert(vec.begin(), map2.begin(), map2.end());
+
+	return get_vector_content_ft(vec);
+}
+
+//############ TEST 5 #################
+
+std::string vector_test_5_std() {
+	
+	std::vector<int> vec;
+
+	vec.push_back(1);
+	vec.push_back(2);
+	vec.push_back(3);
+	vec.push_back(4);
+
+	vec.erase(vec.begin());
+
+	vec.at(2) = 1111;
+
+	return get_vector_content_std(vec);
+}
+
+std::string vector_test_5_ft() {
+	
+	ft::vector<int> vec;
+
+	vec.push_back(1);
+	vec.push_back(2);
+	vec.push_back(3);
+	vec.push_back(4);
+
+	vec.erase(vec.begin());
+
+	vec.at(2) = 1111;
+
+	return get_vector_content_ft(vec);
+}
+
+//############ TEST 6 #################
+
+std::string vector_test_6_std() {
+	
+	std::vector<int> vec;
+
+	vec.push_back(1);
+	vec.push_back(2);
+	vec.push_back(3);
+	vec.push_back(4);
+
+	vec.erase(vec.begin());
+
+	vec[0] = 999;
+
+	std::vector<int> vec2(vec);
+
+	vec2.erase(vec2.begin());
+
+	return get_vector_content_std(vec2);
+}
+
+std::string vector_test_6_ft() {
+	
+	ft::vector<int> vec;
+
+	vec.push_back(1);
+	vec.push_back(2);
+	vec.push_back(3);
+	vec.push_back(4);
+
+	vec.erase(vec.begin());
+
+	vec[0] = 999;
+
+	ft::vector<int> vec2(vec);
+
+	vec2.erase(vec2.begin());
+
+	return get_vector_content_ft(vec2);
+}
+
+void vector_tester() {
+	std::cout << "- - - VECTOR - - -" << std::endl;
+	print_outputs_result(1, compare_vector_test_output(1, &vector_test_1_std, &vector_test_1_ft));
+	print_outputs_result(2, compare_vector_test_output(2, &vector_test_2_std, &vector_test_2_ft));
+	print_outputs_result(3, compare_vector_test_output(3, &vector_test_3_std, &vector_test_3_ft));
+	print_outputs_result(4, compare_vector_test_output(4, &vector_test_4_std, &vector_test_4_ft));
+	print_outputs_result(5, compare_vector_test_output(5, &vector_test_5_std, &vector_test_5_ft));
+	print_outputs_result(6, compare_vector_test_output(6, &vector_test_6_std, &vector_test_6_ft));
+}
+
+/* -------------- STACK TESTER -------------- */
+
+
+void stack_tester() {
+	
+}
+
+/* -------------- MAP TESTER -------------- */
+void map_tester() {
+
 }
 
 int main ()
 {
-	atexit(&ckeck_leaks);
-	ft::map<int, int> map;
-	
-	std::cout << "----" << std::endl;
+	//atexit(&check_leaks);
 
-	map.insert(ft::make_pair(1, 1));
-	map.insert(ft::make_pair(2, 1));
-	map.insert(ft::make_pair(3, 1));
-	map.insert(ft::make_pair(4, 1));
-	map.insert(ft::make_pair(5, 1));
-	map.insert(ft::make_pair(6, 1));
-	map.insert(ft::make_pair(7, 1));
-	map.insert(ft::make_pair(8, 1));
-	map.insert(ft::make_pair(9, 1));
-	map.insert(ft::make_pair(10, 1));
+	vector_tester();
 
-	
-	map.erase(2);
-	map.erase(12);
-	map.erase(2);
-
+	stack_tester();
 
 	return 0;
 }
