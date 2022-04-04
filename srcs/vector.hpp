@@ -105,7 +105,6 @@ namespace ft
 				this->_allocator.deallocate(this->_data, this->capacity());
 			}
 
-			// TODO:
 			vector &operator=(const vector &other)
 			{
 				if (this == &other)
@@ -203,7 +202,6 @@ namespace ft
 				return !this->_size;
 			}
 
-			//FIXME: Al reservar el iterator debe ponerse en el ultimo elemento, pero no lo hace
 			void reserve(size_type n)
 			{
 				if (n <= this->_capacity)
@@ -331,15 +329,12 @@ namespace ft
 				this->insert(this->end(), val);
 			}
 
-			// TODO:
 			void pop_back()
 			{
 				this->_allocator.destroy(&this->_data[this->size() - 1]);
 				this->_size = this->size() - 1;
 			}
 
-			// TODO: Lanzar excepcion si no se puede alocar la nueva cantidad
-		
 			void insert(iterator position, size_type n, const value_type &val)
 			{
 				size_type new_size = this->size() + n;
@@ -415,12 +410,13 @@ namespace ft
 						if (i == position_i)
 							copy_i++;
 
-						new_data[copy_i] = this->_data[i];
+						this->_allocator.construct(&new_data[copy_i], this->_data[i]);
+
 						i++;
 						copy_i++;
 					}
 
-					new_data[position_i] = val;
+					this->_allocator.construct(&new_data[position_i], val);
 
 					for (size_type i=0; i < this->size(); i++)
 						this->_allocator.destroy(&this->_data[i]);
@@ -432,9 +428,9 @@ namespace ft
 				else
 				{
 					for (size_type i = new_size; i > position_i; i--)
-						this->_data[i] = this->_data[i - 1];
+						this->_allocator.construct(&this->_data[i], this->_data[i - 1]);
 
-					this->_data[position_i] = val;
+					this->_allocator.construct(&this->_data[position_i], val);
 				}
 
 				this->_size = new_size;
@@ -502,7 +498,6 @@ namespace ft
 				this->_size = new_size;
 			}
 
-			// TODO:
 			iterator erase(iterator position)
 			{
 				size_type position_i = position - this->begin();
@@ -570,15 +565,12 @@ namespace ft
 				this->_size = 0;
 			}
 
-			// TODO:
-
 			/* ALLOCATOR */
 
 			allocator_type get_allocator() const
 			{
 				return this->_allocator;
 			}
-
 
 		private:
 			size_type _size;
